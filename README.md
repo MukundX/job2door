@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jobler - Job Platform
 
-## Getting Started
+A Next.js job platform with Google authentication, user onboarding, admin panel, and job management.
 
-First, run the development server:
+## Features
+
+- 🔐 Google OAuth authentication
+- 👤 User onboarding with profile setup
+- 🏢 Company/Individual user types
+- 👨‍💼 Admin panel for job management
+- 📝 Rich job posting with status management
+- 🎯 Public job listings
+- 📱 Responsive design with Tailwind CSS
+
+## Setup
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure Supabase
+
+1. Create a new Supabase project at [supabase.com](https://supabase.com)
+2. Get your project URL and anon key from Settings > API
+3. Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
+
+### 3. Set up Supabase Database
+
+Run these SQL commands in your Supabase SQL editor:
+
+```sql
+-- Users table
+CREATE TABLE users (
+  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email text NOT NULL UNIQUE,
+  google_avatar_url text,
+  telegram_username text,
+  linkedin_username text,
+  twitter_username text,
+  username text NOT NULL UNIQUE,
+  user_type text CHECK (user_type IN ('individual', 'company', 'admin')) NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc', now())
+);
+
+-- Admins table
+CREATE TABLE admins (
+  id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  admin_username text NOT NULL UNIQUE,
+  admin_password_hash text NOT NULL
+);
+
+-- Jobs table
+CREATE TABLE jobs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  slug text NOT NULL UNIQUE,
+  description text NOT NULL,
+  image_url text,
+  tags text[],
+  apply_link text,
+  total_seats integer,
+  deadline timestamp with time zone,
+  status text CHECK (status IN ('public', 'unpublic')) DEFAULT 'unpublic',
+  created_by uuid REFERENCES users(id),
+  created_at timestamp with time zone DEFAULT timezone('utc', now()),
+  updated_at timestamp with time zone DEFAULT timezone('utc', now())
+);
+```
+
+### 4. Configure Google OAuth
+
+1. Go to your Supabase project > Authentication > Providers
+2. Enable Google provider
+3. Add your Google OAuth credentials (Client ID and Secret)
+
+### 5. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── admin/             # Admin panel
+│   ├── dashboard/         # User dashboard
+│   ├── job/[slug]/        # Dynamic job pages
+│   ├── onboard/           # User onboarding
+│   ├── p/                 # User profile
+│   └── layout.tsx         # Root layout
+├── components/            # React components
+│   ├── ui/               # Reusable UI components
+│   ├── AuthProvider.tsx  # Authentication context
+│   ├── LoadingSpinner.tsx
+│   └── Navbar.tsx
+└── lib/                  # Utility functions
+    └── supabase.ts       # Supabase client
+```
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+1. **Landing Page**: Welcome page with Onboard/Dashboard button
+2. **Onboarding**: Google auth → User type selection → Profile setup
+3. **Dashboard**: View jobs (if any are posted)
+4. **Admin Panel**: Create and manage jobs (admin only)
+5. **Profile**: View and edit user information
+6. **Job Pages**: Public job listings at `/job/{job-title}`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Frontend**: Next.js 15 with TypeScript and Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)
+- **Authentication**: Google OAuth via Supabase Auth
+- **Styling**: Tailwind CSS with custom components
 
-## Deploy on Vercel
+## TODO
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Implement actual Supabase database operations
+- [ ] Add rich text editor for job descriptions
+- [ ] Implement job status management
+- [ ] Add image upload functionality
+- [ ] Create username suggestion API
+- [ ] Add admin password verification
+- [ ] Implement job search and filtering
+- [ ] Add email notifications
+- [ ] Mobile responsiveness improvements
