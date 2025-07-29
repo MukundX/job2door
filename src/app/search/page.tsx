@@ -430,51 +430,97 @@ export default function SearchPage() {
   };
 
   const handleSearch = async () => {
-  updateUrlWithParams();
-  setIsLoading(true);
-
-  try {
-    console.log("Starting job search...");
-    console.log(`Searching for keyword: "${keyword}"`);
-
-    let data = [];
-    let error = null;
-
-    // Call the Postgres function for keyword search
-    if (keyword.trim()) {
-      const { data: rpcData, error: rpcError } = await supabase
-        .rpc("search_full_job_detail", { keyword: keyword.trim() });
-
-      data = rpcData;
-      error = rpcError;
-    } else {
-      // If no keyword, fetch all jobs
-      const { data: allJobs, error: allJobsError } = await supabase
+    setIsLoading(true);
+    try {
+      // Fetch all jobs (with categories/subcategories if needed)
+      const { data, error } = await supabase
         .from("jobs")
-        .select("*");
+        .select(`
+          *,
+          job_company(*),
+          job_categories(
+            categories(name, icon),
+            subcategories(name)
+          )
+        `);
 
-      data = allJobs;
-      error = allJobsError;
-    }
+      if (error) {
+        console.error("Supabase error:", error);
+        setJobs([]);
+        setIsLoading(false);
+        return;
+      }
 
-    if (error) {
-      console.error("Supabase error:", error);
+      let filteredJobs = data || [];
+
+      // Keyword filter in JS
+      if (keyword.trim()) {
+        const kw = keyword.trim().toLowerCase();
+        filteredJobs = filteredJobs.filter(job =>
+          job.full_job_detail &&
+          JSON.stringify(job.full_job_detail).toLowerCase().includes(kw)
+        );
+      }
+
+      // Category filter in JS
+      // Category filter in JS
+      if (selectedCategories.length > 0) {
+        filteredJobs = filteredJobs.filter(job =>
+          job.job_categories.some((cat: any) =>
+            selectedCategories.includes(cat.categories?.name)
+          )
+        );
+      }
+
+      // Subcategory filter in JS
+      if (selectedSubcategories.length > 0) {
+        filteredJobs = filteredJobs.filter(job =>
+          job.job_categories.some((sub: any) =>
+            selectedSubcategories.includes(sub.subcategories?.name)
+          )
+        );
+      }
+
+      // Salary Filtering
+      if (minSalary > 0) {
+        filteredJobs = filteredJobs.filter(job => job.salary_min >= minSalary);
+      }
+      if (maxSalary < 200000) {
+        filteredJobs = filteredJobs.filter(job => job.salary_max <= maxSalary);
+      }
+
+      // Job Type Filtering
+      if (jobType !== "all") {
+        filteredJobs = filteredJobs.filter(job => job.job_type === jobType);
+      }
+
+      // Experience Filtering
+      if (experience !== "any") {
+        if (experience === "fresher") {
+          filteredJobs = filteredJobs.filter(job => job.experience_years <= 1);
+        } else if (experience.includes("-")) {
+          const [minExp, maxExp] = experience.split("-").map(Number);
+          filteredJobs = filteredJobs.filter(
+            job =>
+              job.experience_years >= minExp && job.experience_years <= maxExp
+          );
+        } else {
+          filteredJobs = filteredJobs.filter(
+            job => job.experience_years >= Number(experience)
+          );
+        }
+      }
+
+      console.log(`Total jobs fetched: ${data.length}`);
+      console.log(`Jobs after filtering: ${filteredJobs.length}`);
+      setJobs(filteredJobs);
+    } catch (error) {
+      console.error("Search error:", error);
       setJobs([]);
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    console.log(`Total jobs fetched: ${data.length}`);
-    console.log(`Jobs matching keyword "${keyword}":`, data);
-
-    setJobs(data || []);
-  } catch (error) {
-    console.error("Search error:", error);
-    setJobs([]);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const toggleCategory = (categoryName: string) => {
     setSelectedCategories(prev =>
@@ -528,6 +574,40 @@ export default function SearchPage() {
     if (experience !== "any") params.set("experience", experience);
     router.push(`/search?${params.toString()}`);
   };
+
+  // Sync state with URL query parameters
+  useEffect(() => {
+  const params = searchParams;
+  const keywordParam = params.get("keyword");
+  const categoriesParam = params.get("categories");
+  const subcategoriesParam = params.get("subcategories");
+  const jobTypeParam = params.get("jobType");
+  const experienceParam = params.get("experience");
+  const minSalaryParam = params.get("minSalary");
+  const maxSalaryParam = params.get("maxSalary");
+
+  if (categoriesParam) setSelectedCategories(categoriesParam.split(","));
+  if (subcategoriesParam) setSelectedSubcategories(subcategoriesParam.split(","));
+  if (keywordParam) setKeyword(keywordParam);
+  if (jobTypeParam) setJobType(jobTypeParam);
+  if (experienceParam) setExperience(experienceParam);
+  if (minSalaryParam) setMinSalary(Number(minSalaryParam));
+  if (maxSalaryParam) setMaxSalary(Number(maxSalaryParam));
+}, [searchParams]);
+
+  useEffect(() => {
+    handleSearch();
+    // eslint-disable-next-line
+  }, [
+    keyword,
+    selectedCategories,
+    selectedSubcategories,
+    jobType,
+    experience,
+    minSalary,
+    maxSalary,
+    remoteOrOffice
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-900 dark:via-gray-800 dark:to-black relative overflow-hidden">
@@ -780,10 +860,14 @@ export default function SearchPage() {
 
           {/* Right Content Area - Job Results */}
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-2">
               <h2 className="text-2xl font-bold text-white dark:text-gray-200">
                 {jobs.length > 0 ? `Found ${jobs.length} jobs` : isLoading ? "Searching..." : "Search for jobs"}
               </h2>
+            </div>
+            {/* Selected Filters Chips */}
+            <div className="mb-4 overflow-x-auto whitespace-nowrap flex items-center" style={{ scrollbarWidth: "thin" }}>
+              {/* ...chips... */}
             </div>
             <div className="flex flex-wrap gap-6">
               {isLoading ? (
@@ -793,7 +877,6 @@ export default function SearchPage() {
                   </div>
                 ))
               ) : (
-                // In your job results rendering:
                 jobs.map(job => (
                   <div key={job.id} className="min-w-[320px] max-w-xs w-full">
                     <JobCard job={job} percentMatch={job.percentMatch} />
@@ -878,6 +961,15 @@ export default function SearchPage() {
         .scrollbar-thin {
           scrollbar-width: thin;
           scrollbar-color: #8b5cf6 transparent;
+        }
+        .chip {
+          display: inline-block;
+          background: #eee;
+          color: #333;
+          border-radius: 16px;
+          padding: 4px 12px;
+          margin-right: 8px;
+          font-size: 14px;
         }
       `}</style>
     </div>
