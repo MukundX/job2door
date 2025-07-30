@@ -520,29 +520,29 @@ const [educationOptions, setEducationOptions] = useState<Education[]>([]);
   };
 
   // Parse attachments from input
-  const parseAttachments = (input: string) => {
-    return input
-      .split(",")
-      .map(url => url.trim())
-      .filter(Boolean)
-      .map(url => {
-        const name = url.split("/").pop() || "";
-        const ext = name.split(".").pop()?.toUpperCase() || "";
-        let type = "";
-        if (ext === "PDF") type = "PDF";
-        else if (["PNG", "JPG", "JPEG", "GIF", "WEBP"].includes(ext)) type = "Image";
-        else if (["DOC", "DOCX"].includes(ext)) type = "Word";
-        else if (["XLS", "XLSX"].includes(ext)) type = "Excel";
-        else type = ext;
-        return { url, name, size: "", type };
-      });
-  };// eslint-disable-line @typescript-eslint/no-unused-vars
+  // const parseAttachments = (input: string) => {
+  //   return input
+  //     .split(",")
+  //     .map(url => url.trim())
+  //     .filter(Boolean)
+  //     .map(url => {
+  //       const name = url.split("/").pop() || "";
+  //       const ext = name.split(".").pop()?.toUpperCase() || "";
+  //       let type = "";
+  //       if (ext === "PDF") type = "PDF";
+  //       else if (["PNG", "JPG", "JPEG", "GIF", "WEBP"].includes(ext)) type = "Image";
+  //       else if (["DOC", "DOCX"].includes(ext)) type = "Word";
+  //       else if (["XLS", "XLSX"].includes(ext)) type = "Excel";
+  //       else type = ext;
+  //       return { url, name, size: "", type };
+  //     });
+  // };// eslint-disable-line @typescript-eslint/no-unused-vars
 
   
   const allCatIds = categories.map((cat: Category) => cat.id);
-  const allSubcatIds = catManageView 
-  ? subcategories.filter((s: Subcategory) => s.category_id === catManageView.id).map((s: Subcategory) => s.id)
-  : [];// eslint-disable-line @typescript-eslint/no-unused-vars
+  // const allSubcatIds = catManageView 
+  // ? subcategories.filter((s: Subcategory) => s.category_id === catManageView.id).map((s: Subcategory) => s.id)
+  // : [];// eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Bulk delete handler for categories and subcategories
   const handleBulkDelete = async () => {
@@ -579,19 +579,19 @@ const [educationOptions, setEducationOptions] = useState<Education[]>([]);
     }
   };
 
-  const handleDeleteCategory = async (catId: string) => { 
-  if (!window.confirm("Delete this category and all its subcategories?")) return;
-  await supabase.from("categories").delete().eq("id", catId);
-  await supabase.from("subcategories").delete().eq("category_id", catId);
-  setCategories(categories.filter(c => c.id !== catId));
-  setSubcategories(subcategories.filter(s => s.category_id !== catId));
-}; // eslint-disable-line @typescript-eslint/no-unused-vars
+//   const handleDeleteCategory = async (catId: string) => { 
+//     if (!window.confirm("Delete this category and all its subcategories?")) return;
+//     await supabase.from("categories").delete().eq("id", catId);
+//     await supabase.from("subcategories").delete().eq("category_id", catId);
+//     setCategories(categories.filter(c => c.id !== catId));
+//     setSubcategories(subcategories.filter(s => s.category_id !== catId));
+//   }; // eslint-disable-line @typescript-eslint/no-unused-vars
 
-const handleDeleteSubcategory = async (subId: string) => {  
-  if (!window.confirm("Delete this subcategory?")) return;
-  await supabase.from("subcategories").delete().eq("id", subId);
-  setSubcategories(subcategories.filter(s => s.id !== subId));
-}; // eslint-disable-line @typescript-eslint/no-unused-vars
+// const handleDeleteSubcategory = async (subId: string) => {  
+//   if (!window.confirm("Delete this subcategory?")) return;
+//   await supabase.from("subcategories").delete().eq("id", subId);
+//   setSubcategories(subcategories.filter(s => s.id !== subId));
+// }; // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // UI
   if (!isAuthed) {
