@@ -1,17 +1,10 @@
-// import Image from "next/image";
 import { useRef, useEffect } from "react";
 import { Card } from "./ui/Card";
-// TODO: Replace with correct import path for Job type
-// import type { Job } from "../app/search/page";
+
 type Job = {
   title: string;
   isPromotion?: boolean;
-  job_company?: {
-    image_url?: string;
-    company_name?: string;
-    company_username?: string;
-    location?: string;
-  };
+  job_company?: { company_username?: string; location?: string };
   location?: string;
   job_type?: string;
   remoteOrOffice?: string;
@@ -25,7 +18,7 @@ type Job = {
 
 interface JobCardProps {
   job: Job;
-  hideSalary?: boolean; // <-- Add this prop to control salary display
+  hideSalary?: boolean;
 }
 
 export default function JobCard({ job, hideSalary = false }: JobCardProps) {
