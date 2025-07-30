@@ -33,9 +33,7 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const colors = ["#FACC15", "#60A5FA", "#F472B6", "#34D399", "#F87171"];
-    const hash = job.title
-      .split("")
-      .reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    const hash = job.title.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
 
     ctx.fillStyle = colors[hash % colors.length];
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -57,7 +55,6 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
 
   return (
     <Card className="min-w-[320px] max-w-xs bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 flex flex-col justify-between p-4 relative">
-      
       {job.isPromotion && (
         <div className="absolute -top-2 -left-2 z-10">
           <span className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-xs font-bold shadow-lg">
