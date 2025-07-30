@@ -1,6 +1,7 @@
 import { supabase } from "../../../lib/supabase";
 import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
+import type { Job } from "./JobDetailClient"; // Correct// Import Job default export
 
 export default async function JobDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -27,10 +28,10 @@ export default async function JobDetailPage({ params }: { params: { slug: string
   }
 
   // Fetch similar jobs
-  let similarJobs: any[] = [];
-  let companyJobs: any[] = [];
-  const jobCategories = jobData.job_categories?.map((jc: any) => jc.categories?.name).filter(Boolean) || [];
-  const jobSubcategories = jobData.job_categories?.map((jc: any) => jc.subcategories?.name).filter(Boolean) || [];
+  let similarJobs: Job[] = [];
+  let companyJobs: Job[] = [];
+  const jobCategories = jobData.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
+  const jobSubcategories = jobData.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
 
   if (jobCategories.length > 0) {
     const { data: similarData } = await supabase
@@ -47,20 +48,20 @@ export default async function JobDetailPage({ params }: { params: { slug: string
       .limit(10);
 
     if (similarData) {
-      const scoredJobs = similarData.map(job => {
+      const scoredJobs = similarData.map((job: Job) => {
         let score = 0;
-        const jobCats = job.job_categories?.map((jc: any) => jc.categories?.name).filter(Boolean) || [];
-        const jobSubs = job.job_categories?.map((jc: any) => jc.subcategories?.name).filter(Boolean) || [];
-        jobSubs.forEach((sub: string) => {
-          if (jobSubcategories.includes(sub)) score += 3;
+        const jobCats = job.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
+        const jobSubs = job.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
+        jobSubs.forEach((sub: string | undefined) => {
+          if (sub && jobSubcategories.includes(sub)) score += 3;
         });
-        jobCats.forEach((cat: string) => {
-          if (jobCategories.includes(cat)) score += 1;
+        jobCats.forEach((cat: string | undefined) => {
+          if (cat && jobCategories.includes(cat)) score += 1;
         });
         return { ...job, similarityScore: score };
       });
       similarJobs = scoredJobs
-        .filter(job => job.similarityScore > 0)
+        .filter((job: Job & { similarityScore: number }) => job.similarityScore > 0)
         .sort((a, b) => b.similarityScore - a.similarityScore)
         .slice(0, 3);
     }
@@ -78,14 +79,13 @@ export default async function JobDetailPage({ params }: { params: { slug: string
       .neq("id", jobData.id)
       .limit(3);
     if (companyData) {
-      companyJobs = companyData;
+      companyJobs = companyData as Job[];
     }
   }
 
-  // Pass all data to your client component (which contains all your UI and logic)
   return (
     <JobDetailClient
-      job={jobData}
+      job={jobData as Job}
       similarJobs={similarJobs}
       companyJobs={companyJobs}
       slug={slug}

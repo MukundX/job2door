@@ -6,9 +6,27 @@ import JobCardSkeleton from "../../components/JobCardSkeleton";
 import JobCard from "../../components/JobCard";
 import DashboardNavbar from "../../components/DashboardNavbar";
 
+// Define a Job type for your jobs
+interface Job {
+  id: string;
+  title: string;
+  job_type?: string;
+  job_categories?: Array<{
+    categories?: { name?: string };
+    subcategories?: { name?: string };
+  }>;
+  location?: string;
+  job_company?: {
+    location?: string;
+  };
+  remoteOrOffice?: string;
+  salary_min?: number;
+  salary_max?: number;
+}
+
 interface DashboardClientProps {
-  initialRecentJobs: unknown[];
-  initialPromotionJobs: unknown[];
+  initialRecentJobs: Job[];
+  initialPromotionJobs: Job[];
 }
 
 export default function DashboardClient({
@@ -28,14 +46,10 @@ export default function DashboardClient({
   const [jobType, setJobType] = useState("all");
 
   // Jobs state from server
-  const [recentJobs, setRecentJobs] = useState<any[]>(initialRecentJobs);
-  const [promotionJobs, setPromotionJobs] = useState<any[]>(initialPromotionJobs);
-  const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
+  const [recentJobs] = useState<Job[]>(initialRecentJobs); // Remove setRecentJobs
+  const [promotionJobs] = useState<Job[]>(initialPromotionJobs); // Remove setPromotionJobs
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-
-  // Loading states (already loaded from server)
-  const [isLoadingRecent, setIsLoadingRecent] = useState(false);
-  const [isLoadingPromotion, setIsLoadingPromotion] = useState(false);
 
   // Get user location (browser)
   useEffect(() => {
@@ -57,7 +71,7 @@ export default function DashboardClient({
     if (subcategory) jobs = jobs.filter(job => job.job_categories?.some((jc: any) => jc.subcategories?.name?.toLowerCase().includes(subcategory.toLowerCase())));
     if (location) jobs = jobs.filter(job => (job.location?.toLowerCase().includes(location.toLowerCase()) || job.job_company?.location?.toLowerCase().includes(location.toLowerCase())));
     if (remoteOrOffice !== "all") jobs = jobs.filter(job => job.remoteOrOffice === remoteOrOffice);
-    if (minSalary > 0) jobs = jobs.filter(job => job.salary_min >= minSalary);
+    if (minSalary > 0) jobs = jobs.filter(job => typeof job.salary_min === "number" && job.salary_min >= minSalary);
     if (jobType !== "all") jobs = jobs.filter(job => job.job_type === jobType);
     setFilteredJobs(jobs);
     setIsSearching(false);

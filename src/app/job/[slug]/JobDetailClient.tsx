@@ -9,9 +9,8 @@ import("pdfjs-dist");
 
 const getPdfThumbnail = async (pdfUrl: string): Promise<string | null> => {
   try {
-    // @ts-expect-error
+    // @ts-expect-error: pdfjsLib does not have types for legacy build import
     const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf");
-    
     pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
     const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
     const page = await pdf.getPage(1);
@@ -106,7 +105,7 @@ function getTimeLeft(deadline: string) {
 }
 
 // Use a proper type for job
-interface Job {
+export interface Job {
   id: string;
   title: string;
   job_company?: {
@@ -203,8 +202,6 @@ export default function JobDetailClient({
   const salary = job.salary ? `$${job.salary.toLocaleString()}` : 'Competitive salary';
   const jobType = job.job_type || 'Full-time';
   const description = job.about_role || job.description || 'Exciting job opportunity';
-  const category = job.job_categories?.[0]?.categories?.name || 'General';
-  const subcategory = job.job_categories?.[0]?.subcategories?.name || '';
   const pageTitle = `${jobTitle} at ${companyName} - ${location} | Jobler`;
   const pageDescription = `${jobTitle} position at ${companyName} in ${location}. ${jobType} role with ${salary}. Apply now on Jobler - India's leading job portal.`;
   const canonicalUrl = `https://jobler.com/job/${slug}`;
@@ -394,7 +391,7 @@ export default function JobDetailClient({
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Attachment</h2>
                   <div className="flex gap-4 flex-wrap">
                     {job.attachments && job.attachments.length > 0 ? (
-                      job.attachments.map((attachment: any, index: number) => (
+                      job.attachments.map((attachment: Attachment, index: number) => (
                         <AttachmentCard
                           key={index}
                           attachment={attachment}
@@ -502,7 +499,7 @@ export default function JobDetailClient({
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Similar Jobs</h3>
                 <div className="space-y-4">
                   {similarJobs.length > 0 ? (
-                    similarJobs.map(similarJob => (
+                    similarJobs.map((similarJob: Job) => (
                       <SimilarJobCard key={similarJob.id} job={similarJob} />
                     ))
                   ) : (
@@ -523,7 +520,7 @@ export default function JobDetailClient({
                   </h3>
                   <div className="space-y-4">
                     {companyJobs.length > 0 ? (
-                      companyJobs.map(companyJob => (
+                      companyJobs.map((companyJob: Job) => (
                         <SimilarJobCard key={companyJob.id} job={companyJob} />
                       ))
                     ) : (

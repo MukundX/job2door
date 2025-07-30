@@ -322,6 +322,35 @@ const DualRangeSlider = ({
   );
 };
 
+// Define types for jobs, categories, subcategories
+interface Job {
+  id: string;
+  title: string;
+  job_type?: string;
+  job_categories?: Array<{
+    categories?: { name?: string };
+    subcategories?: { name?: string };
+  }>;
+  salary_min?: number;
+  salary_max?: number;
+  experience_years?: number;
+  job_education?: Array<{ education?: { id: number; name: string } }>;
+  percentMatch?: number;
+  [key: string]: unknown;
+}
+
+interface Category {
+  id: string | number;
+  name: string;
+  icon?: string;
+}
+
+interface Subcategory {
+  id: string | number;
+  name: string;
+  categories?: { name?: string };
+}
+
 export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -338,9 +367,9 @@ export default function SearchPage() {
   const [experience, setExperience] = useState("any");
 
   // Data state
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [educationOptions, setEducationOptions] = useState<{ id: number, name: string }[]>([]);
   const [selectedEducations, setSelectedEducations] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -586,19 +615,6 @@ export default function SearchPage() {
     { value: "internship", label: "Internship", icon: "🎓" }
   ];
 
-  const updateUrlWithParams = () => {
-    const params = new URLSearchParams();
-    if (remoteOrOffice !== "all") params.set("remoteOrOffice", remoteOrOffice);
-    if (minSalary > 0) params.set("minSalary", minSalary.toString());
-    if (maxSalary < 200000) params.set("maxSalary", maxSalary.toString());
-    if (jobType !== "all") params.set("jobType", jobType);
-    if (selectedCategories.length > 0) params.set("categories", selectedCategories.join(","));
-    if (selectedSubcategories.length > 0) params.set("subcategories", selectedSubcategories.join(","));
-    if (keyword.trim()) params.set("keyword", keyword.trim());
-    if (experience !== "any") params.set("experience", experience);
-    router.push(`/search?${params.toString()}`);
-  };
-
   // Sync state with URL query parameters
   useEffect(() => {
   const params = searchParams;
@@ -736,7 +752,10 @@ export default function SearchPage() {
                         ))
                       ) : (
                         subcategories
-                          .filter(sub => selectedCategories.includes(sub.categories?.name))
+                          .filter(sub => {
+                            const name = sub.categories?.name;
+                            return typeof name === "string" && selectedCategories.includes(name);
+                          })
                           .slice(0, 6)
                           .map(sub => (
                             <button
@@ -754,12 +773,18 @@ export default function SearchPage() {
                             </button>
                           ))
                       )}
-                      {!isCatLoading && subcategories.filter(sub => selectedCategories.includes(sub.categories?.name)).length > 6 && (
+                      {!isCatLoading && subcategories.filter(sub => {
+                        const name = sub.categories?.name;
+                        return name !== undefined && selectedCategories.includes(name);
+                      }).length > 6 && (
                         <button
                           onClick={() => setShowSubcategoryModal(true)}
                           className="px-3 py-2 rounded-lg text-sm font-medium bg-white/10 text-white/60 hover:bg-white/20 hover:text-white/80 transition-all duration-300"
                         >
-                          +{subcategories.filter(sub => selectedCategories.includes(sub.categories?.name)).length - 6} more
+                          +{subcategories.filter(sub => {
+                            const name = sub.categories?.name;
+                            return typeof name === "string" && selectedCategories.includes(name);
+                          }).length - 6} more
                         </button>
                       )}
                     </div>
