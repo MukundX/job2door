@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Head from "next/head";
 import DashboardNavbar from "../../../components/DashboardNavbar";
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
 import("pdfjs-dist");
 
 const getPdfThumbnail = async (pdfUrl: string): Promise<string | null> => {
