@@ -15,11 +15,12 @@ interface JobCategoryJoin {
   } | null;
 }
 
-export default async function Page({
-  params,
-}: {
+// Define the type for the props explicitly.
+type PageProps = {
   params: { slug: string };
-}) {
+};
+
+export default async function Page({ params }: PageProps) {
   const { slug } = params;
 
   const { data: jobData, error: jobError } = await supabase
