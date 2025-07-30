@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
 import type { Job } from "./JobDetailClient";
 
+// ✅ You don't need to define a custom props interface; just use destructured params
 export default async function JobDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
