@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../lib/supabase";
+// import { supabase } from "../lib/supabase";
 
 export default function HomePage() {
 	const [searchText, setSearchText] = useState("");
@@ -162,7 +162,7 @@ export default function HomePage() {
 				</div>
 				{/* Headline */}
 				<h1 className="text-3xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-					World's JOB
+					World&apos;s JOB
 					
 					Map
 				</h1>

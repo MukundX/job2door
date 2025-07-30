@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import { useRef, useEffect } from "react";
 import { Card } from "./ui/Card";
 // TODO: Replace with correct import path for Job type
