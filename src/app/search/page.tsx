@@ -8,10 +8,10 @@ import JobCardSkeleton from "../../components/JobCardSkeleton";
 import DashboardNavbar from "../../components/DashboardNavbar";
 
 // Custom Dropdown Component
-const CustomDropdown = ({ 
-  value, 
-  onChange, 
-  options, 
+const CustomDropdown = ({
+  value,
+  onChange,
+  options,
   placeholder = "Select option",
   icon = "⏰"
 }: {
@@ -47,10 +47,10 @@ const CustomDropdown = ({
           <span className="mr-2">{icon}</span>
           {selectedOption ? selectedOption.label : placeholder}
         </div>
-        <svg 
+        <svg
           className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -89,7 +89,7 @@ const CategoryModal = ({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  categories: any[];
+  categories: Category[];
   selectedCategories: string[];
   onToggleCategory: (categoryName: string) => void;
   title?: string;
@@ -112,16 +112,16 @@ const CategoryModal = ({
             </button>
           </div>
         </div>
-        
+
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {categories.map(cat => (
               <button
                 key={cat.id}
-                onClick={() => onToggleCategory(cat.name)}
+                onClick={() => onToggleCategory(cat.name ?? "")}
                 className={`
                   p-4 rounded-xl text-sm font-medium transition-all duration-300 transform hover:scale-105 text-center
-                  ${selectedCategories.includes(cat.name)
+                  ${selectedCategories.includes(cat.name ?? "")
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
                     : 'bg-white/20 dark:bg-gray-700/50 text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-600/50'
                   }
@@ -133,7 +133,7 @@ const CategoryModal = ({
             ))}
           </div>
         </div>
-        
+
         <div className="p-6 border-t border-white/20 dark:border-gray-700/50 flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -159,7 +159,7 @@ const SubcategoryModal = ({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  subcategories: any[];
+  subcategories: Subcategory[];
   selectedSubcategories: string[];
   onToggleSubcategory: (subcategoryName: string) => void;
   selectedCategories: string[];
@@ -168,7 +168,7 @@ const SubcategoryModal = ({
   if (!isOpen) return null;
 
   const filteredSubcategories = subcategories.filter(sub =>
-    selectedCategories.length === 0 || selectedCategories.includes(sub.categories?.name)
+    selectedCategories.length === 0 || selectedCategories.includes(sub.categories?.name ?? "")
   );
 
   return (
@@ -187,7 +187,7 @@ const SubcategoryModal = ({
             </button>
           </div>
         </div>
-        
+
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           {selectedCategories.length === 0 ? (
             <div className="text-center py-8">
@@ -199,10 +199,10 @@ const SubcategoryModal = ({
               {filteredSubcategories.map(sub => (
                 <button
                   key={sub.id}
-                  onClick={() => onToggleSubcategory(sub.name)}
+                  onClick={() => onToggleSubcategory(sub.name ?? "")}
                   className={`
                     p-3 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 text-center
-                    ${selectedSubcategories.includes(sub.name)
+                    ${selectedSubcategories.includes(sub.name ?? "")
                       ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-lg'
                       : 'bg-white/20 dark:bg-gray-700/50 text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-600/50'
                     }
@@ -215,7 +215,7 @@ const SubcategoryModal = ({
             </div>
           )}
         </div>
-        
+
         <div className="p-6 border-t border-white/20 dark:border-gray-700/50 flex justify-end gap-3">
           <button
             onClick={onClose}
@@ -326,6 +326,7 @@ const DualRangeSlider = ({
 interface Job {
   id: string;
   title: string;
+  slug?: string;
   job_type?: string;
   job_categories?: Array<{
     categories?: { name?: string };
@@ -463,7 +464,7 @@ export default function SearchPage() {
   // Fetch education tags on mount
   useEffect(() => {
     const fetchEducation = async () => {
-      const { data, error } = await supabase.from("education").select("*").order("name");
+      const { data } = await supabase.from("education").select("*").order("name");
       setEducationOptions(data || []);
     };
     fetchEducation();
@@ -506,11 +507,10 @@ export default function SearchPage() {
       }
 
       // Category filter in JS
-      // Category filter in JS
       if (selectedCategories.length > 0) {
         filteredJobs = filteredJobs.filter(job =>
-          job.job_categories.some((cat: any) =>
-            selectedCategories.includes(cat.categories?.name)
+          job.job_categories.some((cat: { categories?: { name?: string } }) =>
+            selectedCategories.includes(cat.categories?.name ?? "")
           )
         );
       }
@@ -518,8 +518,8 @@ export default function SearchPage() {
       // Subcategory filter in JS
       if (selectedSubcategories.length > 0) {
         filteredJobs = filteredJobs.filter(job =>
-          job.job_categories.some((sub: any) =>
-            selectedSubcategories.includes(sub.subcategories?.name)
+          job.job_categories.some((sub: { subcategories?: { name?: string } }) =>
+            selectedSubcategories.includes(sub.subcategories?.name ?? "")
           )
         );
       }
@@ -557,14 +557,12 @@ export default function SearchPage() {
       // Education filter
       if (selectedEducations.length > 0) {
         filteredJobs = filteredJobs.filter(job =>
-          job.job_education?.some((je: any) =>
-            selectedEducations.includes(je.education?.id)
+          job.job_education?.some((je: { education?: { id: number } }) =>
+            selectedEducations.includes(je.education?.id ?? -1)
           )
         );
       }
 
-      console.log(`Total jobs fetched: ${data.length}`);
-      console.log(`Jobs after filtering: ${filteredJobs.length}`);
       setJobs(filteredJobs);
     } catch (error) {
       console.error("Search error:", error);
@@ -617,23 +615,23 @@ export default function SearchPage() {
 
   // Sync state with URL query parameters
   useEffect(() => {
-  const params = searchParams;
-  const keywordParam = params.get("keyword");
-  const categoriesParam = params.get("categories");
-  const subcategoriesParam = params.get("subcategories");
-  const jobTypeParam = params.get("jobType");
-  const experienceParam = params.get("experience");
-  const minSalaryParam = params.get("minSalary");
-  const maxSalaryParam = params.get("maxSalary");
+    const params = searchParams;
+    const keywordParam = params.get("keyword");
+    const categoriesParam = params.get("categories");
+    const subcategoriesParam = params.get("subcategories");
+    const jobTypeParam = params.get("jobType");
+    const experienceParam = params.get("experience");
+    const minSalaryParam = params.get("minSalary");
+    const maxSalaryParam = params.get("maxSalary");
 
-  if (categoriesParam) setSelectedCategories(categoriesParam.split(","));
-  if (subcategoriesParam) setSelectedSubcategories(subcategoriesParam.split(","));
-  if (keywordParam) setKeyword(keywordParam);
-  if (jobTypeParam) setJobType(jobTypeParam);
-  if (experienceParam) setExperience(experienceParam);
-  if (minSalaryParam) setMinSalary(Number(minSalaryParam));
-  if (maxSalaryParam) setMaxSalary(Number(maxSalaryParam));
-}, [searchParams]);
+    if (categoriesParam) setSelectedCategories(categoriesParam.split(","));
+    if (subcategoriesParam) setSelectedSubcategories(subcategoriesParam.split(","));
+    if (keywordParam) setKeyword(keywordParam);
+    if (jobTypeParam) setJobType(jobTypeParam);
+    if (experienceParam) setExperience(experienceParam);
+    if (minSalaryParam) setMinSalary(Number(minSalaryParam));
+    if (maxSalaryParam) setMaxSalary(Number(maxSalaryParam));
+  }, [searchParams]);
 
   useEffect(() => {
     handleSearch();
@@ -959,7 +957,7 @@ export default function SearchPage() {
               ) : (
                 jobs.map(job => (
                   <div key={job.id} className="min-w-[320px] max-w-xs w-full">
-                    <JobCard job={job} percentMatch={job.percentMatch} />
+                    <JobCard job={{ ...job, slug: job.slug ?? "" }} percentMatch={job.percentMatch} />
                   </div>
                 ))
               )}

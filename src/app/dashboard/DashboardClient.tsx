@@ -10,6 +10,7 @@ import DashboardNavbar from "../../components/DashboardNavbar";
 interface Job {
   id: string;
   title: string;
+  slug: string; // Added slug property
   job_type?: string;
   job_categories?: Array<{
     categories?: { name?: string };

@@ -1,7 +1,29 @@
+import Image from "next/image";
 import { Card } from "./ui/Card";
+// TODO: Replace with correct import path for Job type
+// import type { Job } from "../app/search/page";
+type Job = {
+  title: string;
+  isPromotion?: boolean;
+  job_company?: {
+    image_url?: string;
+    company_name?: string;
+    company_username?: string;
+    location?: string;
+  };
+  location?: string;
+  job_type?: string;
+  remoteOrOffice?: string;
+  experience?: string;
+  salary_min?: number;
+  salary_max?: number;
+  created_at?: string;
+  applicants?: number;
+  slug: string;
+};
 
 interface JobCardProps {
-  job: any;
+  job: Job;
   percentMatch?: number;
 }
 
@@ -18,13 +40,13 @@ export default function JobCard({ job }: JobCardProps) {
       )}
       
       <div className="flex items-start gap-3">
-        {job.job_company?.image_url ? (
-          <img src={job.job_company.image_url} alt={job.title} className="w-12 h-12 rounded-lg object-cover" />
-        ) : (
-          <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 font-bold text-xl">
-            {job.title?.[0] || "J"}
-          </div>
-        )}
+        <Image
+          src={job.job_company?.image_url || "/default-logo.png"}
+          alt={job.title}
+          width={48}
+          height={48}
+          className="w-12 h-12 rounded-lg object-cover"
+        />
         <div className="flex-1">
           <div className="font-semibold text-gray-900 dark:text-gray-100 text-base">{job.title}</div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -83,7 +105,7 @@ export default function JobCard({ job }: JobCardProps) {
               ) : job.salary_min ? (
                 `₹${(job.salary_min / 100000).toFixed(1)}L+`
               ) : (
-                `Up to ₹${(job.salary_max / 100000).toFixed(1)}L`
+                `Up to ₹${((job.salary_max ?? 0) / 100000).toFixed(1)}L`
               )}
             </span>
           </div>

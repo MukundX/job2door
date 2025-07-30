@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useAuth } from "./AuthProvider";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Button } from "./ui/Button";
+// import { Button } from "./ui/Button";
 
 export default function DashboardNavbar() {
   const { user } = useAuth();
