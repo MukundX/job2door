@@ -3,14 +3,15 @@ import { useState } from "react";
 import Link from "next/link";
 import Head from "next/head";
 import DashboardNavbar from "../../../components/DashboardNavbar";
+import Image from "next/image";
 // import html2canvas from "html2canvas";
 import("pdfjs-dist");
 
 const getPdfThumbnail = async (pdfUrl: string): Promise<string | null> => {
   try {
-    // @ts-ignore
+    // @ts-expect-error
     const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf");
-    // @ts-ignore
+    
     pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
     const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
     const page = await pdf.getPage(1);
@@ -20,17 +21,24 @@ const getPdfThumbnail = async (pdfUrl: string): Promise<string | null> => {
     canvas.height = viewport.height;
     await page.render({ canvasContext: canvas.getContext("2d")!, viewport }).promise;
     return canvas.toDataURL();
-  } catch (err) {
+  } catch {
     return null;
   }
 };
+
+// Use a proper type for attachment
+interface Attachment {
+  url: string;
+  name: string;
+  type: string;
+}
 
 const AttachmentCard = ({
   attachment,
   setAttachmentUrl,
   setShowAttachmentModal,
 }: {
-  attachment: any;
+  attachment: Attachment;
   setAttachmentUrl: (url: string) => void;
   setShowAttachmentModal: (show: boolean) => void;
 }) => {
@@ -62,7 +70,8 @@ const AttachmentCard = ({
       <div className="flex-1 flex items-center justify-center mt-8 mb-2 px-2">
         {isPdf ? (
           pdfThumb ? (
-            <img src={pdfThumb} alt={attachment.name} className="w-full h-32 object-cover rounded-lg" />
+            // Replace <img> with <Image />
+            <Image src={pdfThumb} alt={attachment.name} width={192} height={128} className="w-full h-32 object-cover rounded-lg" />
           ) : (
             <div className="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
               <svg className="w-10 h-10 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +80,7 @@ const AttachmentCard = ({
             </div>
           )
         ) : (
-          <img src={attachment.url} alt={attachment.name} className="w-full h-32 object-cover rounded-lg" />
+          <Image src={attachment.url} alt={attachment.name} width={192} height={128} className="w-full h-32 object-cover rounded-lg" />
         )}
       </div>
       <span className="absolute bottom-2 right-2 text-gray-400">
@@ -96,7 +105,38 @@ function getTimeLeft(deadline: string) {
   return `${days}d ${hours}h ${minutes}m left`;
 }
 
-const SimilarJobCard = ({ job }: { job: any }) => (
+// Use a proper type for job
+interface Job {
+  id: string;
+  title: string;
+  job_company?: {
+    company_name?: string;
+    company_username?: string;
+    location?: string;
+  };
+  location?: string;
+  job_type?: string;
+  remoteOrOffice?: string;
+  experience?: string;
+  created_at?: string;
+  applicants?: number;
+  deadline?: string;
+  about_role?: string;
+  description?: string;
+  qualifications?: string[];
+  responsibilities?: string[];
+  education_names?: string;
+  attachments?: Attachment[];
+  tags?: string[];
+  apply_link?: string;
+  job_categories?: Array<{
+    categories?: { name?: string };
+    subcategories?: { name?: string };
+  }>;
+  salary?: number;
+}
+
+const SimilarJobCard = ({ job }: { job: Job }) => (
   <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
     <div className="flex items-start gap-3 mb-3">
       <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center text-white font-bold">
@@ -144,9 +184,9 @@ export default function JobDetailClient({
   companyJobs,
   slug,
 }: {
-  job: any;
-  similarJobs: any[];
-  companyJobs: any[];
+  job: Job;
+  similarJobs: Job[];
+  companyJobs: Job[];
   slug: string;
 }) {
   // Attachment & Share modal states
