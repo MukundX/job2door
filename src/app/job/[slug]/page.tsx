@@ -1,9 +1,25 @@
+// src/app/job/[slug]/page.tsx
+
 import { supabase } from "../../../lib/supabase";
 import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
 import type { Job } from "./JobDetailClient";
 
-export default async function JobDetailPage({ params }: { params: { slug: string } }) {
+interface JobCategoryJoin {
+  categories?: {
+    name?: string | null;
+    icon?: string | null;
+  } | null;
+  subcategories?: {
+    name?: string | null;
+  } | null;
+}
+
+export default async function Page({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const { slug } = params;
 
   const { data: jobData, error: jobError } = await supabase
@@ -29,16 +45,11 @@ export default async function JobDetailPage({ params }: { params: { slug: string
   let similarJobs: Job[] = [];
   let companyJobs: Job[] = [];
 
-  type JobCategory = {
-    categories?: { name?: string };
-    subcategories?: { name?: string };
-  };
-
   const jobCategories =
-    jobData.job_categories?.map((jc: JobCategory) => jc.categories?.name).filter(Boolean) || [];
+    jobData.job_categories?.map((jc: JobCategoryJoin) => jc.categories?.name).filter(Boolean) || [];
 
   const jobSubcategories =
-    jobData.job_categories?.map((jc: JobCategory) => jc.subcategories?.name).filter(Boolean) || [];
+    jobData.job_categories?.map((jc: JobCategoryJoin) => jc.subcategories?.name).filter(Boolean) || [];
 
   if (jobCategories.length > 0) {
     const { data: similarData } = await supabase
@@ -55,14 +66,15 @@ export default async function JobDetailPage({ params }: { params: { slug: string
       .limit(10);
 
     if (similarData) {
-      const scoredJobs = similarData.map((job: Job) => {
+      const scoredJobs = similarData.map((job: Job & { job_categories?: JobCategoryJoin[] }) => {
         let score = 0;
-        const jobCats = job.job_categories?.map((jc: JobCategory) => jc.categories?.name).filter(Boolean) || [];
-        const jobSubs = job.job_categories?.map((jc: JobCategory) => jc.subcategories?.name).filter(Boolean) || [];
-        jobSubs.forEach((sub: string | undefined) => {
+        const jobCats = job.job_categories?.map((jc) => jc.categories?.name).filter(Boolean) || [];
+        const jobSubs = job.job_categories?.map((jc) => jc.subcategories?.name).filter(Boolean) || [];
+
+        jobSubs.forEach((sub) => {
           if (sub && jobSubcategories.includes(sub)) score += 3;
         });
-        jobCats.forEach((cat: string | undefined) => {
+        jobCats.forEach((cat) => {
           if (cat && jobCategories.includes(cat)) score += 1;
         });
 
