@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
 import type { Job } from "./JobDetailClient";
 
-// Remove the interface JobDetailPageProps
-
+// No custom interface, use inline type for params
 export default async function JobDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
@@ -31,11 +30,17 @@ export default async function JobDetailPage({ params }: { params: { slug: string
   let similarJobs: Job[] = [];
   let companyJobs: Job[] = [];
 
+  // Use explicit type for job_categories mapping
+  type JobCategory = {
+    categories?: { name?: string };
+    subcategories?: { name?: string };
+  };
+
   const jobCategories =
-    jobData.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
+    jobData.job_categories?.map((jc: JobCategory) => jc.categories?.name).filter(Boolean) || [];
 
   const jobSubcategories =
-    jobData.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
+    jobData.job_categories?.map((jc: JobCategory) => jc.subcategories?.name).filter(Boolean) || [];
 
   if (jobCategories.length > 0) {
     const { data: similarData } = await supabase
@@ -54,8 +59,8 @@ export default async function JobDetailPage({ params }: { params: { slug: string
     if (similarData) {
       const scoredJobs = similarData.map((job: Job) => {
         let score = 0;
-        const jobCats = job.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
-        const jobSubs = job.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
+        const jobCats = job.job_categories?.map((jc: JobCategory) => jc.categories?.name).filter(Boolean) || [];
+        const jobSubs = job.job_categories?.map((jc: JobCategory) => jc.subcategories?.name).filter(Boolean) || [];
         jobSubs.forEach((sub: string | undefined) => {
           if (sub && jobSubcategories.includes(sub)) score += 3;
         });
