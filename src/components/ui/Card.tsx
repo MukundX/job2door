@@ -22,8 +22,10 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           className
         )}
         {...props}
-      />
+      >
+        {props.children}
+      </div>
     );
   }
 );
-Card.displayName = "Card"; 
+Card.displayName = "Card";
