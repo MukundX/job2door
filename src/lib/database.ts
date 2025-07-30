@@ -26,7 +26,7 @@ export interface CreateUserData {
 
 export async function createUser(userData: CreateUserData): Promise<User | null> {
   console.log('Creating user with data:', userData);
-  
+
   try {
     const { data, error } = await supabase
       .from('users')
@@ -52,6 +52,9 @@ export async function createUser(userData: CreateUserData): Promise<User | null>
     return null;
   }
 }
+// ...existing code...
+// Remove any unused variable assignments like:
+// const data = ... (if not used)
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   try {
@@ -116,7 +119,7 @@ export async function updateUser(userId: string, updates: Partial<CreateUserData
 
 export async function checkUsernameAvailability(username: string): Promise<boolean> {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('users')
       .select('username')
       .eq('username', username)
@@ -139,6 +142,7 @@ export async function checkUsernameAvailability(username: string): Promise<boole
     return false;
   }
 }
+
 
 export async function getUsernameSuggestions(baseUsername: string): Promise<string[]> {
   const suggestions = [

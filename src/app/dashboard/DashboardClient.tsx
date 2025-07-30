@@ -7,8 +7,8 @@ import JobCard from "../../components/JobCard";
 import DashboardNavbar from "../../components/DashboardNavbar";
 
 interface DashboardClientProps {
-  initialRecentJobs: any[];
-  initialPromotionJobs: any[];
+  initialRecentJobs: unknown[];
+  initialPromotionJobs: unknown[];
 }
 
 export default function DashboardClient({
