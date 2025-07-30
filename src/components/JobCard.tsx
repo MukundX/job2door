@@ -1,3 +1,4 @@
+// import Image from "next/image";
 import { useRef, useEffect } from "react";
 import { Card } from "./ui/Card";
 
@@ -24,16 +25,19 @@ interface JobCardProps {
 export default function JobCard({ job, hideSalary = false }: JobCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Draw initials avatar based on job title
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Background color based on title hash
     const colors = ["#FACC15", "#60A5FA", "#F472B6", "#34D399", "#F87171"];
     const hash = job.title.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
     ctx.fillStyle = colors[hash % colors.length];
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Initials
     ctx.font = "bold 20px sans-serif";
     ctx.fillStyle = "#fff";
     ctx.textAlign = "center";
@@ -48,8 +52,9 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
   }, [job.title]);
 
   return (
+
     <Card className="min-w-[320px] max-w-xs bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 flex flex-col justify-between p-4 relative">
-      {/* Promoted tag */}
+      {/* Promoted tag - positioned at top-left corner with higher z-index */}
       {job.isPromotion && (
         <div className="absolute -top-2 -left-2 z-10">
           <span className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-xs font-bold shadow-lg">
@@ -59,6 +64,7 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
       )}
 
       <div className="flex items-start gap-3">
+        {/* Canvas Avatar */}
         <canvas
           ref={canvasRef}
           width={48}
@@ -66,6 +72,7 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
           className="w-12 h-12 rounded-lg object-cover"
         />
         <div className="flex-1">
+          {/* Job Title as link */}
           <a
             href={`/job/${job.slug}`}
             className="font-semibold text-gray-900 dark:text-gray-100 text-base hover:underline"
@@ -75,6 +82,7 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
             {job.title}
           </a>
           <div className="text-sm text-gray-500 dark:text-gray-400">
+            {/* Only show location, not company name */}
             {job.job_company?.location || job.location || "Location"}
           </div>
         </div>
@@ -97,6 +105,7 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
         {job.experience && (
           <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-medium">{job.experience}</span>
         )}
+        {/* Company tag - links to company profile, only as tag */}
         {job.job_company?.company_username && (
           <a
             href={`/company/${job.job_company.company_username}`}
@@ -107,13 +116,20 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
         )}
       </div>
 
+      {/* Salary Information - only show if not hidden and salary exists */}
       {!hideSalary && job.salary_min && job.salary_max && (
-        <div className="flex items-center space-x-2 px-1 py-1 rounded" style={{ marginTop: 'px' }}>
-          <span className="font-medium text-gray-800 dark:text-gray-100">Salary:</span>
-          <div className="text-sm font-semibold text-green-700 dark:text-green-400">
-            ₹{job.salary_min.toLocaleString()} - ₹{job.salary_max.toLocaleString()}
-          </div>
-        </div>
+        <div
+  className="flex items-center space-x-2 px-1 py-1 rounded"
+  style={{  marginTop: '0px' }}
+>
+  <span className="font-medium text-gray-800 dark:text-gray-100">Salary:</span>
+  <div className="text-sm font-semibold text-green-700 dark:text-green-400">
+    ₹{job.salary_min.toLocaleString()} - ₹{job.salary_max.toLocaleString()}
+  </div>
+</div>
+
+
+
       )}
 
       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-3">
@@ -132,4 +148,5 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
       </div>
     </Card>
   );
+  
 }
