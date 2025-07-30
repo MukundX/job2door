@@ -3,8 +3,13 @@ import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
 import type { Job } from "./JobDetailClient"; // Correct// Import Job default export
 
-// Next.js expects: { params: { slug: string } }
-export default async function JobDetailPage({ params }: { params: { slug: string } }) {
+interface JobDetailPageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const { slug } = params;
 
   // Fetch job data server-side
