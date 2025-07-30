@@ -14,7 +14,6 @@ interface JobCategoryJoin {
   } | null;
 }
 
-// New pattern: params will be a Promise, so resolve it
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
@@ -43,7 +42,6 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
   const jobCategories =
     jobData.job_categories?.map((jc: JobCategoryJoin) => jc.categories?.name).filter(Boolean) || [];
-
   const jobSubcategories =
     jobData.job_categories?.map((jc: JobCategoryJoin) => jc.subcategories?.name).filter(Boolean) || [];
 
@@ -67,18 +65,15 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           let score = 0;
           const jobCats = job.job_categories?.map((jc) => jc.categories?.name).filter(Boolean) || [];
           const jobSubs = job.job_categories?.map((jc) => jc.subcategories?.name).filter(Boolean) || [];
-
           jobSubs.forEach((sub) => {
             if (sub && jobSubcategories.includes(sub)) score += 3;
           });
           jobCats.forEach((cat) => {
             if (cat && jobCategories.includes(cat)) score += 1;
           });
-
           return { ...job, similarityScore: score };
         }
       );
-
       similarJobs = scoredJobs
         .filter((job) => job.similarityScore > 0)
         .sort((a, b) => b.similarityScore - a.similarityScore)
@@ -96,7 +91,6 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       .eq("company", jobData.job_company.id)
       .neq("id", jobData.id)
       .limit(3);
-
     if (companyData) {
       companyJobs = companyData as Job[];
     }
