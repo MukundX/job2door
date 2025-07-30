@@ -69,33 +69,33 @@ const jobCards = [
 	// Add more job cards as needed
 ];
 
-const featuredCards = [
-	{
-		id: 1,
-		image: "/card1.png", // Replace with your card image or JSX
-		style: "rotate-[-15deg] -translate-x-16 z-10",
-	},
-	{
-		id: 2,
-		image: "/card2.png",
-		style: "rotate-[-7deg] -translate-x-8 z-20",
-	},
-	{
-		id: 3,
-		image: "/card3.png", // Center card
-		style: "rotate-0 z-30",
-	},
-	{
-		id: 4,
-		image: "/card4.png",
-		style: "rotate-[7deg] translate-x-8 z-20",
-	},
-	{
-		id: 5,
-		image: "/card5.png",
-		style: "rotate-[15deg] translate-x-16 z-10",
-	},
-];
+// const featuredCards = [
+// 	{
+// 		id: 1,
+// 		image: "/card1.png", // Replace with your card image or JSX
+// 		style: "rotate-[-15deg] -translate-x-16 z-10",
+// 	},
+// 	{
+// 		id: 2,
+// 		image: "/card2.png",
+// 		style: "rotate-[-7deg] -translate-x-8 z-20",
+// 	},
+// 	{
+// 		id: 3,
+// 		image: "/card3.png", // Center card
+// 		style: "rotate-0 z-30",
+// 	},
+// 	{
+// 		id: 4,
+// 		image: "/card4.png",
+// 		style: "rotate-[7deg] translate-x-8 z-20",
+// 	},
+// 	{
+// 		id: 5,
+// 		image: "/card5.png",
+// 		style: "rotate-[15deg] translate-x-16 z-10",
+// 	},
+// ];
 
 const concentricCards = [
 	{
