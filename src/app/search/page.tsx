@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { Button } from "../../components/ui/Button";
@@ -341,6 +341,8 @@ export default function SearchPage() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [educationOptions, setEducationOptions] = useState<{ id: number, name: string }[]>([]);
+  const [selectedEducations, setSelectedEducations] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCatLoading, setIsCatLoading] = useState(true);
 
@@ -429,6 +431,15 @@ export default function SearchPage() {
     }
   };
 
+  // Fetch education tags on mount
+  useEffect(() => {
+    const fetchEducation = async () => {
+      const { data, error } = await supabase.from("education").select("*").order("name");
+      setEducationOptions(data || []);
+    };
+    fetchEducation();
+  }, []);
+
   const handleSearch = async () => {
     setIsLoading(true);
     try {
@@ -441,6 +452,9 @@ export default function SearchPage() {
           job_categories(
             categories(name, icon),
             subcategories(name)
+          ),
+          job_education(
+            education(id, name)
           )
         `);
 
@@ -511,6 +525,15 @@ export default function SearchPage() {
         }
       }
 
+      // Education filter
+      if (selectedEducations.length > 0) {
+        filteredJobs = filteredJobs.filter(job =>
+          job.job_education?.some((je: any) =>
+            selectedEducations.includes(je.education?.id)
+          )
+        );
+      }
+
       console.log(`Total jobs fetched: ${data.length}`);
       console.log(`Jobs after filtering: ${filteredJobs.length}`);
       setJobs(filteredJobs);
@@ -547,6 +570,7 @@ export default function SearchPage() {
     setSelectedSubcategories([]);
     setJobs([]);
     setExperience("any");
+    setSelectedEducations([]);
   };
 
   const handleSalaryChange = (min: number, max: number) => {
@@ -606,7 +630,8 @@ export default function SearchPage() {
     experience,
     minSalary,
     maxSalary,
-    remoteOrOffice
+    remoteOrOffice,
+    selectedEducations
   ]);
 
   return (
@@ -832,6 +857,36 @@ export default function SearchPage() {
                   <option value="5">5+ Years</option>
                   <option value="10">10+ Years</option>
                 </select>
+              </div>
+
+              {/* Education Filter */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white dark:text-gray-200 mb-4 flex items-center">
+                  <span className="mr-2">🎓</span> Education
+                </h3>
+                <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-transparent">
+                  <div className="flex flex-wrap gap-2 pr-2">
+                    {educationOptions.map(edu => (
+                      <button
+                        key={edu.id}
+                        onClick={() =>
+                          setSelectedEducations(prev =>
+                            prev.includes(edu.id)
+                              ? prev.filter(id => id !== edu.id)
+                              : [...prev, edu.id]
+                          )
+                        }
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105
+                          ${selectedEducations.includes(edu.id)
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                            : 'bg-white/20 dark:bg-gray-700/50 text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-600/50'
+                          }`}
+                      >
+                        {edu.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Search Button */}

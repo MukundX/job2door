@@ -14,6 +14,9 @@ export default async function JobDetailPage({ params }: { params: { slug: string
       job_categories(
         categories(name, icon),
         subcategories(name)
+      ),
+      job_education(
+        education(id, name)
       )
     `)
     .eq("slug", slug)

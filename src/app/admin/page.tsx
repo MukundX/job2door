@@ -65,6 +65,8 @@ const [remoteOrOffice, setRemoteOrOffice] = useState("remote");
 const [attachmentsList, setAttachmentsList] = useState<{url: string, name: string, size: string, type: string}[]>([]);
 const [selectedCatIds, setSelectedCatIds] = useState<string[]>([]);
 const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
+const [educationOptions, setEducationOptions] = useState<any[]>([]);
+const [selectedEducations, setSelectedEducations] = useState<string[]>([]);
 
 // Custom select popups
   const [catPopup, setCatPopup] = useState(false);
@@ -188,6 +190,11 @@ const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
     }
   }, [isAuthed, tab]);
 
+  // Education options fetch
+  useEffect(() => {
+    supabase.from("education").select("*").then(({ data }) => setEducationOptions(data || []));
+  }, []);
+
   // Add tag
   const handleAddTag = (tag: string) => {
     if (tag && !tags.includes(tag)) setTags([...tags, tag]);
@@ -297,6 +304,12 @@ const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
     type: att.type,
   }));
 
+  // Get selected education names
+  const selectedEducationNames = educationOptions
+    .filter(edu => selectedEducations.includes(edu.id))
+    .map(edu => edu.name)
+    .join(",");
+
   // Construct the full_job_detail JSON object
   const fullJobDetail = {
     title: jobTitle,
@@ -322,6 +335,7 @@ const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
   };
 
   try {
+    // Insert job with education_names column
     const { data, error } = await supabase.from("jobs").insert([
       {
         title: jobTitle,
@@ -344,7 +358,8 @@ const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
         responsibilities,
         attachments,
         remoteOrOffice,
-        full_job_detail: fullJobDetail, // Add the full_job_detail JSON
+        full_job_detail: fullJobDetail,
+        education_names: selectedEducationNames, // <-- update column here
       },
     ]);
 
@@ -376,6 +391,17 @@ const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
             )
         )
       );
+
+      // Upsert job_education table
+      await supabase.from("job_education").delete().eq("job_id", jobsData[0].id);
+      if (selectedEducations.length > 0) {
+        await supabase.from("job_education").insert(
+          selectedEducations.map(education_id => ({
+            job_id: jobsData[0].id,
+            education_id,
+          }))
+        );
+      }
     }
 
     setPostSuccess("Job posted successfully!");
@@ -715,6 +741,41 @@ const handleDeleteSubcategory = async (subId: string) => {
                   {!slugAvailable && <span className="text-xs text-red-600">Slug is already taken.</span>}
                 </div>
               </div>
+
+              
+
+{/* Education Required */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Education Required</label>
+  <div className="flex flex-wrap gap-2">
+    {educationOptions.map(edu => (
+      <button
+        key={edu.id}
+        type="button"
+        onClick={() =>
+          setSelectedEducations(prev =>
+            prev.includes(edu.id)
+              ? prev.filter(id => id !== edu.id)
+              : [...prev, edu.id]
+          )
+        }
+        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300
+          ${selectedEducations.includes(edu.id)
+            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+            : 'bg-gray-100 text-gray-700 hover:bg-purple-100'
+          }`}
+      >
+        {edu.name}
+      </button>
+    ))}
+  </div>
+  {selectedEducations.length === 0 && (
+    <div className="text-xs text-gray-400 mt-1">Select at least one education tag if required.</div>
+  )}
+</div>
+
+
+
               {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Description</label>
@@ -1110,6 +1171,7 @@ const handleDeleteSubcategory = async (subId: string) => {
                   setResponsibilitiesInput("");
                   setAttachmentsInput("");
                   setAttachmentsList([]);
+                  setSelectedEducations([]);
                 }}
                 className="bg-gray-300 text-gray-700"
               >
@@ -1239,22 +1301,6 @@ const handleDeleteSubcategory = async (subId: string) => {
                     type="text"
                     value={newSubcategory}
                     onChange={e => setNewSubcategory(e.target.value)}
-                    className="flex-1 rounded-md border-gray-300 shadow-sm bg-white dark:bg-gray-800 text-black dark:text-white px-3 py-2 w-[90%]"
-                    placeholder={`Add subcategory to "${catManageView.name}"`}
-                  />
-                  <Button type="button" className="bg-pink-600 text-white px-3 py-2" onClick={handleAddSubcategory}>
-                    Add Subcategory
-                  </Button>
-                </div>
-                {addSubcatMsg && <div className="text-green-600 text-xs mb-2">{addSubcatMsg}</div>}
-
-                <div className="flex items-center mb-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedSubcatIds.length === allSubcatIds.length && allSubcatIds.length > 0}
-                    onChange={e =>
-                      setSelectedSubcatIds(e.target.checked ? allSubcatIds : [])
-                    }
                     className="mr-2"
                   />
                   <span className="font-semibold">Select All Subcategories</span>

@@ -335,6 +335,20 @@ export default function JobDetailClient({
                     )}
                   </ul>
                 </div>
+                {/* Education Required */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 mb-6 shadow-lg">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Education Required</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {job.education_names
+                      ? job.education_names.split(",").map((name: string, idx: number) => (
+                          <span key={idx} className="px-3 py-2 rounded-lg bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 font-medium text-sm">
+                            {name.trim()}
+                          </span>
+                        ))
+                      : <span className="text-gray-500 dark:text-gray-400">No specific education required.</span>
+                    }
+                  </div>
+                </div>
                 {/* Attachment */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Attachment</h2>
@@ -350,6 +364,21 @@ export default function JobDetailClient({
                       ))
                     ) : (
                       <div className="text-gray-500 dark:text-gray-400">No attachments available.</div>
+                    )}
+                  </div>
+                </div>
+                {/* Tags Section */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg mt-6">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Tags</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.isArray(job.tags) && job.tags.length > 0 ? (
+                      job.tags.map((tag: string, idx: number) => (
+                        <span key={idx} className="px-3 py-1 rounded-full bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300 font-medium text-sm">
+                          {tag}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-gray-500 dark:text-gray-400">No tags for this job.</span>
                     )}
                   </div>
                 </div>
