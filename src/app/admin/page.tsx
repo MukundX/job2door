@@ -131,6 +131,9 @@ const [educationOptions, setEducationOptions] = useState<Education[]>([]);
     });
   }, [jobTitle]);
 
+
+  type JobTagsResult = { tags?: string[] };
+
   // Tag suggestions
   useEffect(() => {
     if (tagInput.length > 0) {
@@ -142,7 +145,7 @@ const [educationOptions, setEducationOptions] = useState<Education[]>([]);
           const allTags = Array.from(
             new Set(
               (data || [])
-                .flatMap((j: any) => j.tags || [])
+                .flatMap((j: JobTagsResult) => j.tags || [])
                 .filter((t: string) => t && t.toLowerCase().includes(tagInput.toLowerCase()))
             )
           );
@@ -389,7 +392,7 @@ const [educationOptions, setEducationOptions] = useState<Education[]>([]);
         selectedCategories.flatMap(catId =>
           selectedSubcategories
             .filter(subId => {
-              const sub = subcategories.find((s: any) => s.id === subId);
+              const sub = subcategories.find((s: Subcategory) => s.id === subId);
               return sub?.category_id === catId;
             })
             .map(subId =>
@@ -531,16 +534,15 @@ const [educationOptions, setEducationOptions] = useState<Education[]>([]);
         else if (["DOC", "DOCX"].includes(ext)) type = "Word";
         else if (["XLS", "XLSX"].includes(ext)) type = "Excel";
         else type = ext;
-        // Size can't be detected from URL alone, so leave as empty string
         return { url, name, size: "", type };
       });
   };// eslint-disable-line @typescript-eslint/no-unused-vars
 
-  // Helper arrays for bulk selection
-  const allCatIds = categories.map((cat: any) => cat.id);
+  
+  const allCatIds = categories.map((cat: Category) => cat.id);
   const allSubcatIds = catManageView 
-    ? subcategories.filter((s) => s.category_id === catManageView.id).map((s) => s.id)
-    : []; // eslint-disable-line @typescript-eslint/no-unused-vars
+  ? subcategories.filter((s: Subcategory) => s.category_id === catManageView.id).map((s: Subcategory) => s.id)
+  : [];// eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Bulk delete handler for categories and subcategories
   const handleBulkDelete = async () => {

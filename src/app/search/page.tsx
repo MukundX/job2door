@@ -353,7 +353,7 @@ interface Subcategory {
 }
 
 export default function SearchPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const searchParams = useSearchParams();
 
   // Search state
@@ -454,6 +454,7 @@ export default function SearchPage() {
         setSubcategories(subcategoriesData || []);
       }
     } catch (error) {
+      // eslint-disable-line @typescript-eslint/no-unused-vars
       setCategories([]);
       setSubcategories([]);
     } finally {
