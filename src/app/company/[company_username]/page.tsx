@@ -36,7 +36,7 @@ interface Job {
   isPromotion?: boolean;
   job_company?: Company;
   job_categories?: JobCategory[];
-  [key: string]: any;
+  // [key: string]: any;
 }
 
 export default function CompanyPage() {

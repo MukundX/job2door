@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { Button } from "../../components/ui/Button";
 import JobCard from "../../components/JobCard";
@@ -392,7 +392,7 @@ export default function SearchPage() {
             const data = await response.json();
             const location = `${data.city || data.locality || 'Unknown'}, ${data.principalSubdivision || data.countryName || 'Unknown'}`;
             setUserLocation(location);
-          } catch (error) {
+          } catch{
             setUserLocation("Location unavailable");
           }
         },
@@ -453,8 +453,7 @@ export default function SearchPage() {
       } else {
         setSubcategories(subcategoriesData || []);
       }
-    } catch (error) {
-      // eslint-disable-line @typescript-eslint/no-unused-vars
+    } catch  {
       setCategories([]);
       setSubcategories([]);
     } finally {
