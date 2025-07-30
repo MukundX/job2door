@@ -54,9 +54,8 @@ export default async function JobDetailPage({ params }: { params: { slug: string
     if (similarData) {
       const scoredJobs = similarData.map((job: Job) => {
         let score = 0;
-        const jobCats = job.job_categories?.map((jc: any) => jc.categories?.name).filter(Boolean) || [];
-        const jobSubs = job.job_categories?.map((jc: any) => jc.subcategories?.name).filter(Boolean) || [];
-
+        const jobCats = job.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
+        const jobSubs = job.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
         jobSubs.forEach((sub: string | undefined) => {
           if (sub && jobSubcategories.includes(sub)) score += 3;
         });
