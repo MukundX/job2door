@@ -1,4 +1,3 @@
-// src/app/job/[slug]/page.tsx
 import { supabase } from "../../../lib/supabase";
 import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
@@ -14,7 +13,7 @@ interface JobCategoryJoin {
   } | null;
 }
 
-export default async function JobDetailPage({
+export default async function Page({
   params,
 }: {
   params: { slug: string };
