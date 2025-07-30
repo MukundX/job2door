@@ -1,5 +1,4 @@
 // src/app/job/[slug]/page.tsx
-
 import { supabase } from "../../../lib/supabase";
 import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
@@ -15,8 +14,9 @@ interface JobCategoryJoin {
   } | null;
 }
 
-export default async function Page({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+// New pattern: params will be a Promise, so resolve it
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
 
   const { data: jobData, error: jobError } = await supabase
     .from("jobs")
@@ -62,20 +62,22 @@ export default async function Page({ params }: { params: { slug: string } }) {
       .limit(10);
 
     if (similarData) {
-      const scoredJobs = similarData.map((job: Job & { job_categories?: JobCategoryJoin[] }) => {
-        let score = 0;
-        const jobCats = job.job_categories?.map((jc) => jc.categories?.name).filter(Boolean) || [];
-        const jobSubs = job.job_categories?.map((jc) => jc.subcategories?.name).filter(Boolean) || [];
+      const scoredJobs = similarData.map(
+        (job: Job & { job_categories?: JobCategoryJoin[] }) => {
+          let score = 0;
+          const jobCats = job.job_categories?.map((jc) => jc.categories?.name).filter(Boolean) || [];
+          const jobSubs = job.job_categories?.map((jc) => jc.subcategories?.name).filter(Boolean) || [];
 
-        jobSubs.forEach((sub) => {
-          if (sub && jobSubcategories.includes(sub)) score += 3;
-        });
-        jobCats.forEach((cat) => {
-          if (cat && jobCategories.includes(cat)) score += 1;
-        });
+          jobSubs.forEach((sub) => {
+            if (sub && jobSubcategories.includes(sub)) score += 3;
+          });
+          jobCats.forEach((cat) => {
+            if (cat && jobCategories.includes(cat)) score += 1;
+          });
 
-        return { ...job, similarityScore: score };
-      });
+          return { ...job, similarityScore: score };
+        }
+      );
 
       similarJobs = scoredJobs
         .filter((job) => job.similarityScore > 0)
