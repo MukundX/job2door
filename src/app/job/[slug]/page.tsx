@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
 import type { Job } from "./JobDetailClient";
 
-// No custom interface, use inline type for params
 export default async function JobDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
@@ -30,7 +29,6 @@ export default async function JobDetailPage({ params }: { params: { slug: string
   let similarJobs: Job[] = [];
   let companyJobs: Job[] = [];
 
-  // Use explicit type for job_categories mapping
   type JobCategory = {
     categories?: { name?: string };
     subcategories?: { name?: string };
