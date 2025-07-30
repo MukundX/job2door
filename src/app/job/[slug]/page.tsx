@@ -10,6 +10,16 @@ interface JobDetailPageProps {
   };
 }
 
+interface JobCategoryJoin {
+  categories?: {
+    name?: string | null;
+    icon?: string | null;
+  } | null;
+  subcategories?: {
+    name?: string | null;
+  } | null;
+}
+
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const { slug } = params;
 
@@ -37,10 +47,10 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   let companyJobs: Job[] = [];
 
   const jobCategories =
-    jobData.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
+    jobData.job_categories?.map((jc: JobCategoryJoin) => jc.categories?.name).filter(Boolean) || [];
 
   const jobSubcategories =
-    jobData.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
+    jobData.job_categories?.map((jc: JobCategoryJoin) => jc.subcategories?.name).filter(Boolean) || [];
 
   if (jobCategories.length > 0) {
     const { data: similarData } = await supabase
@@ -57,15 +67,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       .limit(10);
 
     if (similarData) {
-      const scoredJobs = similarData.map((job: Job) => {
+      const scoredJobs = similarData.map((job: Job & { job_categories?: JobCategoryJoin[] }) => {
         let score = 0;
-        const jobCats = job.job_categories?.map((jc: any) => jc.categories?.name).filter(Boolean) || [];
-        const jobSubs = job.job_categories?.map((jc: any) => jc.subcategories?.name).filter(Boolean) || [];
+        const jobCats = job.job_categories?.map((jc) => jc.categories?.name).filter(Boolean) || [];
+        const jobSubs = job.job_categories?.map((jc) => jc.subcategories?.name).filter(Boolean) || [];
 
-        jobSubs.forEach((sub: string | undefined) => {
+        jobSubs.forEach((sub) => {
           if (sub && jobSubcategories.includes(sub)) score += 3;
         });
-        jobCats.forEach((cat: string | undefined) => {
+        jobCats.forEach((cat) => {
           if (cat && jobCategories.includes(cat)) score += 1;
         });
 
