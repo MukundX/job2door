@@ -53,8 +53,8 @@ export default function DashboardClient({
   const handleSearch = () => {
     setIsSearching(true);
     let jobs = recentJobs;
-    if (category) jobs = jobs.filter(job => job.job_categories?.some(jc => jc.categories?.name?.toLowerCase().includes(category.toLowerCase())));
-    if (subcategory) jobs = jobs.filter(job => job.job_categories?.some(jc => jc.subcategories?.name?.toLowerCase().includes(subcategory.toLowerCase())));
+    if (category) jobs = jobs.filter(job => job.job_categories?.some((jc: any)  => jc.categories?.name?.toLowerCase().includes(category.toLowerCase())));
+    if (subcategory) jobs = jobs.filter(job => job.job_categories?.some((jc: any) => jc.subcategories?.name?.toLowerCase().includes(subcategory.toLowerCase())));
     if (location) jobs = jobs.filter(job => (job.location?.toLowerCase().includes(location.toLowerCase()) || job.job_company?.location?.toLowerCase().includes(location.toLowerCase())));
     if (remoteOrOffice !== "all") jobs = jobs.filter(job => job.remoteOrOffice === remoteOrOffice);
     if (minSalary > 0) jobs = jobs.filter(job => job.salary_min >= minSalary);
