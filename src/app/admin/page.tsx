@@ -32,8 +32,13 @@ export default function AdminPage() {
   const [totalSeats, setTotalSeats] = useState("");
   const [company, setCompany] = useState("");
   const [companyId, setCompanyId] = useState<string | null>(null);
-  const [companySuggestions, setCompanySuggestions] = useState<any[]>([]);
-  const [companyAddedMsg, setCompanyAddedMsg] = useState("");
+ interface CompanySuggestion {
+  id: string;
+  company_name: string;
+  // add other fields if needed
+}
+const [companySuggestions, setCompanySuggestions] = useState<CompanySuggestion[]>([]);
+  const [companyAddedMsg, setCompanyAddedMsg] = useState(""); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [location, setLocation] = useState("");
   const [jobType, setJobType] = useState("Fulltime");
   const [workType, setWorkType] = useState("remote");
@@ -60,7 +65,7 @@ export default function AdminPage() {
 const [aboutRole, setAboutRole] = useState("");
 const [qualificationsInput, setQualificationsInput] = useState("");
 const [responsibilitiesInput, setResponsibilitiesInput] = useState("");
-const [attachmentsInput, setAttachmentsInput] = useState("");
+const [attachmentsInput, setAttachmentsInput] = useState(""); // eslint-disable-line @typescript-eslint/no-unused-vars
 const [remoteOrOffice, setRemoteOrOffice] = useState("remote");
 const [attachmentsList, setAttachmentsList] = useState<{url: string, name: string, size: string, type: string}[]>([]);
 const [selectedCatIds, setSelectedCatIds] = useState<string[]>([]);
@@ -69,10 +74,10 @@ const [educationOptions, setEducationOptions] = useState<any[]>([]);
 const [selectedEducations, setSelectedEducations] = useState<string[]>([]);
 
 // Custom select popups
-  const [catPopup, setCatPopup] = useState(false);
-  const [subcatPopup, setSubcatPopup] = useState(false);
-  const catBtnRef = useRef<HTMLButtonElement>(null);
-  const subcatBtnRef = useRef<HTMLButtonElement>(null);
+  const [catPopup, setCatPopup] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [subcatPopup, setSubcatPopup] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const catBtnRef = useRef<HTMLButtonElement>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const subcatBtnRef = useRef<HTMLButtonElement>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // All jobs
   const [jobs, setJobs] = useState<any[]>([]);

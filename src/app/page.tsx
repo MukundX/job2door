@@ -148,7 +148,7 @@ export default function HomePage() {
 					Away
 				</h1>
 				<p className="text-lg text-gray-600 mb-8 text-center max-w-xl">
-					Find opportunities that match your passion, not just your resume. Let's
+					Find opportunities that match your passion, not just your resume. Let&apos;s
 					build the career you deserve — starting today.
 				</p>
 				{/* Search Bar */}
