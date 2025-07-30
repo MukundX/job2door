@@ -58,6 +58,7 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
   }, [job.title]);
 
   return (
+    <>
     <Card className="min-w-[320px] max-w-xs bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 flex flex-col justify-between p-4 relative">
       {/* Promoted tag - positioned at top-left corner with higher z-index */}
       {job.isPromotion && (
@@ -152,5 +153,7 @@ export default function JobCard({ job, hideSalary = false }: JobCardProps) {
         </a>
       </div>
     </Card>
+    </>
   );
+  
 }
