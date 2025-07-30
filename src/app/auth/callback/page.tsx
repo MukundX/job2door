@@ -1,9 +1,10 @@
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+// app/auth/callback/page.tsx
+"use client";
 
-const CallbackClient = dynamic(() => import('./CallbackClient'), { ssr: false });
+import { Suspense } from "react";
+import CallbackClient from "./CallbackClient";
 
-export default function Page() {
+export default function AuthCallbackPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <CallbackClient />
