@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { Button } from "../../components/ui/Button";
 import JobCard from "../../components/JobCard";
@@ -365,6 +365,7 @@ interface Subcategory {
 }
 
 export default function SearchClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   // User location
@@ -621,10 +622,40 @@ export default function SearchClient() {
     if (maxSalaryParam) setMaxSalary(Number(maxSalaryParam));
   }, [searchParams]);
 
+  // Call this whenever filters change or on search
+  const updateUrlParams = () => {
+    const params = new URLSearchParams();
+    if (keyword) params.set("keyword", keyword);
+    if (selectedCategories.length) params.set("categories", selectedCategories.join(","));
+    if (selectedSubcategories.length) params.set("subcategories", selectedSubcategories.join(","));
+    if (jobType !== "all") params.set("jobType", jobType);
+    if (experience !== "any") params.set("experience", experience);
+    if (minSalary > 0) params.set("minSalary", String(minSalary));
+    if (maxSalary < 200000) params.set("maxSalary", String(maxSalary));
+    // Add other filters as needed
+
+    router.push(`/search?${params.toString()}`);
+  };
+
+  // Call updateUrlParams in handleSearch and/or in useEffect when filters change
+  useEffect(() => {
+    updateUrlParams();
+    // Optionally, debounce this if you want to avoid too many URL changes
+  }, [
+    keyword,
+    selectedCategories,
+    selectedSubcategories,
+    jobType,
+    experience,
+    minSalary,
+    maxSalary,
+    remoteOrOffice,
+    selectedEducations
+  ]);
+
   // Run search whenever any filter changes
   useEffect(() => {
     handleSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     keyword,
     selectedCategories,
@@ -903,7 +934,10 @@ export default function SearchClient() {
 
               {/* Search Button */}
               <Button
-                onClick={handleSearch}
+                onClick={() => {
+                  updateUrlParams();
+                  handleSearch();
+                }}
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
               >
