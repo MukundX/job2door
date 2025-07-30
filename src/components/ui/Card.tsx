@@ -6,7 +6,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = 'default', ...props }, ref) => {
+  ({ className, variant = 'default', children, ...props }, ref) => {
     const variants = {
       default: "bg-white/5 backdrop-blur-sm border border-white/10",
       elevated: "bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl shadow-black/20",
@@ -23,7 +23,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         )}
         {...props}
       >
-        {props.children}
+        {children}
       </div>
     );
   }
