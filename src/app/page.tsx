@@ -268,7 +268,7 @@ export default function HomePage() {
 				{/* Team Member Cards - horizontal scroll, centered, thin scrollbar */}
 				<div className="w-full flex justify-center my-8">
 					<div className="flex items-center gap-6 px-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
-						style={{ scrollbarHeight: '6px', maxWidth: '100vw' }}>
+						style={{ maxWidth: '100vw' }}>
 						{[
 							{ name: "Amit", role: "Frontend", img: "/team1.png", linkedin: "https://linkedin.com/in/amit" },
 							{ name: "Sara", role: "Designer", img: "/team2.png", linkedin: "https://linkedin.com/in/sara" },
