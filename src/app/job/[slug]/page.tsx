@@ -1,14 +1,7 @@
-// src/app/job/[slug]/page.tsx
 import { supabase } from "../../../lib/supabase";
 import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
 import type { Job } from "./JobDetailClient";
-
-interface JobDetailPageProps {
-  params: {
-    slug: string;
-  };
-}
 
 interface JobCategoryJoin {
   categories?: {
@@ -20,7 +13,11 @@ interface JobCategoryJoin {
   } | null;
 }
 
-export default async function JobDetailPage({ params }: JobDetailPageProps) {
+export default async function JobDetailPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const { slug } = params;
 
   const { data: jobData, error: jobError } = await supabase
