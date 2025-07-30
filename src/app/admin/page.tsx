@@ -32,12 +32,16 @@ export default function AdminPage() {
   const [totalSeats, setTotalSeats] = useState("");
   const [company, setCompany] = useState("");
   const [companyId, setCompanyId] = useState<string | null>(null);
- interface CompanySuggestion {
-  id: string;
-  company_name: string;
-  // add other fields if needed
-}
-const [companySuggestions, setCompanySuggestions] = useState<CompanySuggestion[]>([]);
+
+  interface Category { id: string; name: string; }
+  interface Subcategory { id: string; name: string; category_id: string; }
+  interface Job { id: string; title: string; company: string; slug: string; apply_link: string; }
+  interface Education { id: string; name: string; }
+
+  
+  
+  interface CompanySuggestion { id: string; company_name: string; }
+  const [companySuggestions, setCompanySuggestions] = useState<CompanySuggestion[]>([]);
   const [companyAddedMsg, setCompanyAddedMsg] = useState(""); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [location, setLocation] = useState("");
   const [jobType, setJobType] = useState("Fulltime");
@@ -52,9 +56,9 @@ const [companySuggestions, setCompanySuggestions] = useState<CompanySuggestion[]
   const [attachmentInputs, setAttachmentInputs] = useState<string[]>(["", "", "", "", ""]);
 
   // Category & Subcategory
-  const [categories, setCategories] = useState<any[]>([]);
+  // const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [subcategories, setSubcategories] = useState<any[]>([]);
+  // const [subcategories, setSubcategories] = useState<any[]>([]);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [newSubcategory, setNewSubcategory] = useState("");
@@ -70,9 +74,13 @@ const [remoteOrOffice, setRemoteOrOffice] = useState("remote");
 const [attachmentsList, setAttachmentsList] = useState<{url: string, name: string, size: string, type: string}[]>([]);
 const [selectedCatIds, setSelectedCatIds] = useState<string[]>([]);
 const [selectedSubcatIds, setSelectedSubcatIds] = useState<string[]>([]);
-const [educationOptions, setEducationOptions] = useState<any[]>([]);
+// const [educationOptions, setEducationOptions] = useState<any[]>([]);
 const [selectedEducations, setSelectedEducations] = useState<string[]>([]);
 
+const [categories, setCategories] = useState<Category[]>([]);
+const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+const [jobs, setJobs] = useState<Job[]>([]);
+const [educationOptions, setEducationOptions] = useState<Education[]>([]);
 // Custom select popups
   const [catPopup, setCatPopup] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [subcatPopup, setSubcatPopup] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -80,7 +88,7 @@ const [selectedEducations, setSelectedEducations] = useState<string[]>([]);
   const subcatBtnRef = useRef<HTMLButtonElement>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // All jobs
-  const [jobs, setJobs] = useState<any[]>([]);
+  // const [jobs, setJobs] = useState<any[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
 
   // Company profile form
@@ -219,18 +227,18 @@ const [selectedEducations, setSelectedEducations] = useState<string[]>([]);
   };
 
   // Add new company (quick add)
-  const handleAddCompany = () => {
-    if (company) {
-      supabase
-        .from("job_company")
-        .insert([{ company_name: company }])
-        .then(() => {
-          setCompanyAddedMsg(`Company: ${company} added in list`);
-          setTimeout(() => setCompanyAddedMsg(""), 3000);
-          setCompanySuggestions([]);
-        });
-    }
-  };
+  // const handleAddCompany = () => {
+  //   if (company) {
+  //     supabase
+  //       .from("job_company")
+  //       .insert([{ company_name: company }])
+  //       .then(() => {
+  //         setCompanyAddedMsg(`Company: ${company} added in list`);
+  //         setTimeout(() => setCompanyAddedMsg(""), 3000);
+  //         setCompanySuggestions([]);
+  //       });
+  //   }
+  // };
 
   // Add new category
   const handleAddCategory = async () => {
@@ -271,7 +279,7 @@ const [selectedEducations, setSelectedEducations] = useState<string[]>([]);
     if (selectedCategories.includes(id)) {
       setSelectedCategories(selectedCategories.filter(cid => cid !== id));
       setSelectedSubcategories(selectedSubcategories.filter(subId => {
-        const sub = subcategories.find((s: any) => s.id === subId);
+        const sub = subcategories.find((s) => s.id === subId)
         return sub?.category_id !== id;
       }));
     } else {
@@ -526,13 +534,13 @@ const [selectedEducations, setSelectedEducations] = useState<string[]>([]);
         // Size can't be detected from URL alone, so leave as empty string
         return { url, name, size: "", type };
       });
-  };
+  };// eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Helper arrays for bulk selection
   const allCatIds = categories.map((cat: any) => cat.id);
-  const allSubcatIds = catManageView
-    ? subcategories.filter((s: any) => s.category_id === catManageView.id).map((s: any) => s.id)
-    : [];
+  const allSubcatIds = catManageView 
+    ? subcategories.filter((s) => s.category_id === catManageView.id).map((s) => s.id)
+    : []; // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Bulk delete handler for categories and subcategories
   const handleBulkDelete = async () => {
@@ -569,19 +577,19 @@ const [selectedEducations, setSelectedEducations] = useState<string[]>([]);
     }
   };
 
-  const handleDeleteCategory = async (catId: string) => {
+  const handleDeleteCategory = async (catId: string) => { 
   if (!window.confirm("Delete this category and all its subcategories?")) return;
   await supabase.from("categories").delete().eq("id", catId);
   await supabase.from("subcategories").delete().eq("category_id", catId);
   setCategories(categories.filter(c => c.id !== catId));
   setSubcategories(subcategories.filter(s => s.category_id !== catId));
-};
+}; // eslint-disable-line @typescript-eslint/no-unused-vars
 
-const handleDeleteSubcategory = async (subId: string) => {
+const handleDeleteSubcategory = async (subId: string) => {  
   if (!window.confirm("Delete this subcategory?")) return;
   await supabase.from("subcategories").delete().eq("id", subId);
   setSubcategories(subcategories.filter(s => s.id !== subId));
-};
+}; // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // UI
   if (!isAuthed) {
