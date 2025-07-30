@@ -197,7 +197,7 @@ export default function DashboardClient({
             ) : (
               filteredJobs.map(job => (
                 <div key={job.id} className="min-w-[320px] max-w-xs w-full">
-                  <JobCard job={job} />
+                  <JobCard job={job} hideSalary={true} />
                 </div>
               ))
             )}
@@ -215,7 +215,7 @@ export default function DashboardClient({
               <div className="flex flex-wrap gap-6 justify-center">
                 {recentJobs.slice(0, 10).map(job => (
                   <div key={job.id} className="min-w-[320px] max-w-xs w-full">
-                    <JobCard job={job} />
+                    <JobCard job={job} hideSalary={true} />
                   </div>
                 ))}
               </div>
@@ -226,7 +226,7 @@ export default function DashboardClient({
               <div className="flex flex-col gap-6 items-center">
                 {promotionJobs.map(job => (
                   <div key={job.id} className="min-w-[320px] max-w-xs w-full">
-                    <JobCard job={job} />
+                    <JobCard job={job} hideSalary={true} />
                   </div>
                 ))}
               </div>

@@ -945,7 +945,7 @@ export default function SearchClient() {
               ) : (
                 jobs.map(job => (
                   <div key={job.id} className="min-w-[320px] max-w-xs w-full">
-                    <JobCard job={{ ...job, slug: job.slug ?? "" }} percentMatch={job.percentMatch} />
+                    <JobCard job={{ ...job, slug: job.slug ?? "" }} />
                   </div>
                 ))
               )}

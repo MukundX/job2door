@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Head from "next/head";
 import DashboardNavbar from "../../../components/DashboardNavbar";
@@ -108,6 +108,7 @@ function getTimeLeft(deadline: string) {
 export interface Job {
   id: string;
   title: string;
+  slug?: string;
   job_company?: {
     company_name?: string;
     company_username?: string;
@@ -136,46 +137,119 @@ export interface Job {
 }
 
 const SimilarJobCard = ({ job }: { job: Job }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-    <div className="flex items-start gap-3 mb-3">
-      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center text-white font-bold">
-        {job.job_company?.company_name?.[0] || job.title?.[0] || 'J'}
+  <Link href={`/job/${job.slug}`} passHref>
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+      <div className="flex items-start gap-3 mb-3">
+        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center text-white font-bold">
+          {job.job_company?.company_name?.[0] || job.title?.[0] || 'J'}
+        </div>
+        <div className="flex-1">
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{job.title}</h3>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            {job.job_company?.company_name || 'Company'} • {job.job_company?.location || 'Location'}
+          </p>
+        </div>
+        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+          </svg>
+        </button>
       </div>
-      <div className="flex-1">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{job.title}</h3>
-        <p className="text-xs text-gray-600 dark:text-gray-400">
-          {job.job_company?.company_name || 'Company'} • {job.job_company?.location || job.location || 'Location'}
-        </p>
+      <div className="flex gap-2 mb-3">
+        {job.job_type && (
+          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">
+            {job.job_type}
+          </span>
+        )}
+        {job.remoteOrOffice && (
+          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">
+            {job.remoteOrOffice === "remote" ? "Remote" : job.remoteOrOffice === "office" ? "Onsite" : "Flexible"}
+          </span>
+        )}
+        {job.experience && (
+          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">
+            {job.experience}
+          </span>
+        )}
       </div>
-      <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-        </svg>
-      </button>
+      <div className="text-xs text-gray-500 dark:text-gray-400">
+        {job.created_at ? `${Math.floor((Date.now() - new Date(job.created_at).getTime()) / (1000 * 60 * 60 * 24)) || 0} day ago` : ""} • 
+        {job.applicants ? ` ${job.applicants} Applicants` : " New"}
+      </div>
     </div>
-    <div className="flex gap-2 mb-3">
-      {job.job_type && (
-        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">
-          {job.job_type}
-        </span>
-      )}
-      {job.remoteOrOffice && (
-        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">
-          {job.remoteOrOffice === "remote" ? "Remote" : job.remoteOrOffice === "office" ? "Onsite" : "Flexible"}
-        </span>
-      )}
-      {job.experience && (
-        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">
-          {job.experience}
-        </span>
-      )}
-    </div>
-    <div className="text-xs text-gray-500 dark:text-gray-400">
-      {job.created_at ? `${Math.floor((Date.now() - new Date(job.created_at).getTime()) / (1000 * 60 * 60 * 24)) || 0} day ago` : ""} • 
-      {job.applicants ? ` ${job.applicants} Applicants` : " New"}
-    </div>
-  </div>
+  </Link>
 );
+
+function AdBannerCanvas() {
+  const adCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = adCanvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        // Gradient background
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, "#7F1FFF");
+        gradient.addColorStop(1, "#FF4F8B");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Banner text
+        ctx.font = "bold 28px sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "left";
+        ctx.fillText("Follow us & connect!", 32, 48);
+
+        ctx.font = "18px sans-serif";
+        ctx.fillText("Join our community for updates.", 32, 80);
+
+        // Join Now button
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = "#7F1FFF";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(32, 100, 160, 40, 20);
+        ctx.stroke();
+        ctx.font = "bold 18px sans-serif";
+        ctx.fillStyle = "#7F1FFF";
+        ctx.textAlign = "center";
+        ctx.fillText("Join Now", 32 + 80, 128);
+
+        // Avatar image floating at right-middle
+        const avatar = new window.Image();
+        avatar.src = "/avatar.png"; // Place your avatar image in public/avatar.png
+        avatar.onload = () => {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(canvas.width - 60, canvas.height / 2, 40, 0, 2 * Math.PI);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(avatar, canvas.width - 100, canvas.height / 2 - 40, 80, 80);
+          ctx.restore();
+        };
+      }
+    }
+  }, []);
+
+  return (
+    <div className="w-full flex justify-center items-center mb-6">
+      <canvas
+        ref={adCanvasRef}
+        width={340}
+        height={180}
+        style={{
+          borderRadius: "24px",
+          boxShadow: "0 8px 32px rgba(127,31,255,0.15)",
+          width: "100%",
+          maxWidth: "340px",
+          height: "180px",
+          display: "block",
+        }}
+      />
+    </div>
+  );
+}
 
 export default function JobDetailClient({
   job,
@@ -211,6 +285,36 @@ export default function JobDetailClient({
     setShowShareModal(true);
   };
 
+  // Banner canvas ref
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        // Gradient background
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, "#7F1FFF");
+        gradient.addColorStop(1, "#FF4F8B");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Main title text (centered, white)
+        ctx.font = "bold 36px sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.fillText(job.title || "Job Opportunity", canvas.width / 2, 60);
+
+        // Small bottom-right text
+        ctx.font = "italic 16px sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "right";
+        ctx.fillText("job2door", canvas.width - 24, canvas.height - 16);
+      }
+    }
+  }, [job.title]);
+
   return (
     <>
       <Head>
@@ -219,7 +323,6 @@ export default function JobDetailClient({
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
       </Head>
-
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-900 dark:via-gray-800 dark:to-black">
         <DashboardNavbar />
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -227,6 +330,23 @@ export default function JobDetailClient({
             {/* Left Panel - Job Details */}
             <div className="flex-1 lg:w-2/3">
               <div id="job-detail-main">
+                {/* Gradient Banner - just above job details */}
+                <div className="w-full flex justify-center items-center mb-0">
+                  <canvas
+                    ref={canvasRef}
+                    width={800}
+                    height={100}
+                    style={{
+                      borderRadius: "24px",
+                      boxShadow: "0 8px 32px rgba(52, 49, 55, 0.15)",
+                      width: "100%",
+                      maxWidth: "100%",
+                      height: "100px",
+                      display: "block",
+                    }}
+                  />
+                </div>
+                {/* Job Details Container */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 mb-6 shadow-lg">
                   <div className="flex items-start justify-between mb-6">
                     <div className="flex items-start gap-4">
@@ -494,6 +614,7 @@ export default function JobDetailClient({
             </div>
             {/* Right Panel - Similar Jobs & Company Jobs */}
             <div className="lg:w-1/3 space-y-6 pb-24 lg:pb-0">
+              <AdBannerCanvas />
               {/* Similar Jobs */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Similar Jobs</h3>
