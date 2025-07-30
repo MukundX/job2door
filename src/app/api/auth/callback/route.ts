@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, getUserByEmail } from '../../../../lib/database';
+import { getUserByEmail } from '../../../../lib/database';
 
 export async function GET(request: NextRequest) {
   try {

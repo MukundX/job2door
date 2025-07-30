@@ -6,22 +6,55 @@ import { Card } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import JobCard from "../../../components/JobCard";
 import DashboardNavbar from "../../../components/DashboardNavbar";
+import Image from "next/image";
+
+// --- Types ---
+interface Company {
+  id: string;
+  company_name: string;
+  company_username: string;
+  image_url?: string;
+  location?: string;
+  description?: string;
+  x?: string;
+  instagram?: string;
+  facebook?: string;
+  telegram?: string;
+}
+
+interface JobCategory {
+  categories?: { name?: string; icon?: string };
+  subcategories?: { name?: string };
+}
+
+interface Job {
+  id: string;
+  title: string;
+  slug: string; // <-- Add this line
+  created_at?: string;
+  deadline?: string;
+  isPromotion?: boolean;
+  job_company?: Company;
+  job_categories?: JobCategory[];
+  [key: string]: any;
+}
 
 export default function CompanyPage() {
   const params = useParams();
   const companyUsername = params.company_username as string;
-  
-  const [company, setCompany] = useState<any>(null);
-  const [jobs, setJobs] = useState<any[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
+
+  const [company, setCompany] = useState<Company | null>(null);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const [jobDates, setJobDates] = useState<{[key: string]: number}>({});
+  const [jobDates, setJobDates] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     if (companyUsername) {
       fetchCompanyData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyUsername]);
 
   const fetchCompanyData = async () => {
@@ -35,7 +68,7 @@ export default function CompanyPage() {
 
       if (companyData) {
         setCompany(companyData);
-        
+
         // Fetch company jobs with full details
         const { data: jobsData } = await supabase
           .from("jobs")
@@ -49,16 +82,16 @@ export default function CompanyPage() {
           `)
           .eq("company", companyData.id)
           .order("created_at", { ascending: false });
-        
+
         if (jobsData) {
           setJobs(jobsData);
           setFilteredJobs(jobsData);
-          
+
           // Create job dates map for calendar
-          const dates: {[key: string]: number} = {};
-          jobsData.forEach(job => {
+          const dates: { [key: string]: number } = {};
+          jobsData.forEach((job: Job) => {
             if (job.created_at) {
-              const date = new Date(job.created_at).toISOString().split('T')[0];
+              const date = new Date(job.created_at).toISOString().split("T")[0];
               dates[date] = (dates[date] || 0) + 1;
             }
           });
@@ -74,14 +107,13 @@ export default function CompanyPage() {
 
   const filterJobsByDate = (date: string) => {
     if (selectedDate === date) {
-      // Deselect if same date clicked
       setSelectedDate("");
       setFilteredJobs(jobs);
     } else {
       setSelectedDate(date);
-      const filtered = jobs.filter(job => {
+      const filtered = jobs.filter((job: Job) => {
         if (!job.created_at) return false;
-        const jobDate = new Date(job.created_at).toISOString().split('T')[0];
+        const jobDate = new Date(job.created_at).toISOString().split("T")[0];
         return jobDate === date;
       });
       setFilteredJobs(filtered);
@@ -92,34 +124,33 @@ export default function CompanyPage() {
     const today = new Date();
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
-    
+
     const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay());
-    
+
     const days = [];
     const current = new Date(startDate);
-    
+
     for (let i = 0; i < 42; i++) {
-      const dateStr = current.toISOString().split('T')[0];
+      const dateStr = current.toISOString().split("T")[0];
       const jobCount = jobDates[dateStr] || 0;
       const isCurrentMonth = current.getMonth() === currentMonth;
       const isToday = current.toDateString() === today.toDateString();
       const isSelected = selectedDate === dateStr;
-      
+
       days.push({
         date: new Date(current),
         dateStr,
         jobCount,
         isCurrentMonth,
         isToday,
-        isSelected
+        isSelected,
       });
-      
+
       current.setDate(current.getDate() + 1);
     }
-    
+
     return days;
   };
 
@@ -146,24 +177,28 @@ export default function CompanyPage() {
   }
 
   const calendarDays = generateCalendarDays();
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"];
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
   const currentMonth = monthNames[new Date().getMonth()];
   const currentYear = new Date().getFullYear();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-gray-900 dark:via-gray-800 dark:to-black">
       <DashboardNavbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Company Header */}
         <Card className="p-8 mb-8 bg-white/10 dark:bg-gray-800/50 border border-white/20 dark:border-gray-700/50">
           <div className="flex items-start gap-6">
             {company.image_url ? (
-              <img 
-                src={company.image_url} 
+              <Image
+                src={company.image_url}
                 alt={company.company_name}
-                className="w-24 h-24 rounded-xl object-cover"
+                width={96}
+                height={96}
+                className="rounded-xl object-cover"
               />
             ) : (
               <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
@@ -172,15 +207,15 @@ export default function CompanyPage() {
                 </span>
               </div>
             )}
-            
+
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-white dark:text-gray-200 mb-2 flex items-center gap-2">
                 {company.company_name}
                 {companyUsername === "jobler" && (
                   <span title="Verified" className="inline-block align-middle">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="#1DA1F2" style={{display: "inline"}}>
-                      <circle cx="12" cy="12" r="12" fill="#1DA1F2"/>
-                      <path d="M17.5 8.5l-6 6-3-3" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="#1DA1F2" style={{ display: "inline" }}>
+                      <circle cx="12" cy="12" r="12" fill="#1DA1F2" />
+                      <path d="M17.5 8.5l-6 6-3-3" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </span>
                 )}
@@ -210,7 +245,7 @@ export default function CompanyPage() {
                 )}
               </h2>
               {selectedDate && (
-                <Button 
+                <Button
                   onClick={() => {
                     setSelectedDate("");
                     setFilteredJobs(jobs);
@@ -222,10 +257,10 @@ export default function CompanyPage() {
                 </Button>
               )}
             </div>
-            
+
             {filteredJobs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredJobs.map(job => (
+                {filteredJobs.map((job: Job) => (
                   <JobCard key={job.id} job={job} />
                 ))}
               </div>
@@ -249,8 +284,8 @@ export default function CompanyPage() {
               <h3 className="text-lg font-semibold text-white dark:text-gray-200 mb-4">Connect</h3>
               <div className="space-y-3">
                 {company.x && (
-                  <a 
-                    href={`https://x.com/${company.x.replace('@', '')}`}
+                  <a
+                    href={`https://x.com/${company.x.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 text-white/80 dark:text-gray-300 hover:text-white dark:hover:text-white transition-colors"
@@ -262,8 +297,8 @@ export default function CompanyPage() {
                   </a>
                 )}
                 {company.instagram && (
-                  <a 
-                    href={`https://instagram.com/${company.instagram.replace('@', '')}`}
+                  <a
+                    href={`https://instagram.com/${company.instagram.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 text-white/80 dark:text-gray-300 hover:text-white dark:hover:text-white transition-colors"
@@ -275,7 +310,7 @@ export default function CompanyPage() {
                   </a>
                 )}
                 {company.facebook && (
-                  <a 
+                  <a
                     href={`https://facebook.com/${company.facebook}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -288,8 +323,8 @@ export default function CompanyPage() {
                   </a>
                 )}
                 {company.telegram && (
-                  <a 
-                    href={`https://t.me/${company.telegram.replace('@', '')}`}
+                  <a
+                    href={`https://t.me/${company.telegram.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 text-white/80 dark:text-gray-300 hover:text-white dark:hover:text-white transition-colors"
@@ -309,16 +344,16 @@ export default function CompanyPage() {
               <div className="text-center mb-4">
                 <h4 className="text-white dark:text-gray-200 font-medium">{currentMonth} {currentYear}</h4>
               </div>
-              
+
               {/* Calendar Grid */}
               <div className="grid grid-cols-7 gap-1 text-xs">
                 {/* Day headers */}
-                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(day => (
                   <div key={day} className="text-center text-white/60 dark:text-gray-400 font-medium p-2">
                     {day}
                   </div>
                 ))}
-                
+
                 {/* Calendar days */}
                 {calendarDays.map((day, index) => (
                   <button
@@ -326,11 +361,11 @@ export default function CompanyPage() {
                     onClick={() => day.jobCount > 0 ? filterJobsByDate(day.dateStr) : null}
                     className={`
                       relative p-2 text-center rounded transition-colors
-                      ${!day.isCurrentMonth ? 'text-white/30 dark:text-gray-600' : 'text-white/80 dark:text-gray-300'}
-                      ${day.isToday ? 'bg-purple-600 text-white' : ''}
-                      ${day.isSelected ? 'bg-pink-600 text-white' : ''}
-                      ${day.jobCount > 0 && !day.isToday && !day.isSelected ? 'bg-white/20 dark:bg-gray-700/50 hover:bg-white/30 dark:hover:bg-gray-600/50 cursor-pointer' : ''}
-                      ${day.jobCount === 0 ? 'cursor-default' : ''}
+                      ${!day.isCurrentMonth ? "text-white/30 dark:text-gray-600" : "text-white/80 dark:text-gray-300"}
+                      ${day.isToday ? "bg-purple-600 text-white" : ""}
+                      ${day.isSelected ? "bg-pink-600 text-white" : ""}
+                      ${day.jobCount > 0 && !day.isToday && !day.isSelected ? "bg-white/20 dark:bg-gray-700/50 hover:bg-white/30 dark:hover:bg-gray-600/50 cursor-pointer" : ""}
+                      ${day.jobCount === 0 ? "cursor-default" : ""}
                     `}
                     disabled={day.jobCount === 0}
                   >
@@ -343,7 +378,7 @@ export default function CompanyPage() {
                   </button>
                 ))}
               </div>
-              
+
               <div className="mt-4 text-xs text-white/60 dark:text-gray-400">
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -367,7 +402,7 @@ export default function CompanyPage() {
                 <div className="flex justify-between">
                   <span className="text-white/80 dark:text-gray-300">Active Jobs</span>
                   <span className="text-white dark:text-gray-200 font-semibold">
-                    {jobs.filter(job => new Date(job.deadline || '') > new Date()).length}
+                    {jobs.filter(job => new Date(job.deadline || "") > new Date()).length}
                   </span>
                 </div>
                 <div className="flex justify-between">

@@ -201,7 +201,7 @@ export default function JobDetailClient({
   const location = job.job_company?.location || job.location || 'Remote';
   const salary = job.salary ? `$${job.salary.toLocaleString()}` : 'Competitive salary';
   const jobType = job.job_type || 'Full-time';
-  const description = job.about_role || job.description || 'Exciting job opportunity';
+  // const description = job.about_role || job.description || 'Exciting job opportunity';
   const pageTitle = `${jobTitle} at ${companyName} - ${location} | Jobler`;
   const pageDescription = `${jobTitle} position at ${companyName} in ${location}. ${jobType} role with ${salary}. Apply now on Jobler - India's leading job portal.`;
   const canonicalUrl = `https://jobler.com/job/${slug}`;
