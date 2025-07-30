@@ -20,7 +20,7 @@ export default function OnboardPage() {
       <div className="relative z-10 max-w-2xl mx-auto px-4 py-12">
         <Card variant="elevated" className="p-8 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl text-center">
           <h1 className="text-4xl font-bold text-white mb-4">Welcome to Jobler</h1>
-          <p className="text-xl text-gray-300 mb-8">Let's get you set up in just a few steps</p>
+          <p className="text-xl text-gray-300 mb-8">You&apos;re get you set up in just a few steps</p>
           <Button
             onClick={handleGetStarted}
             size="lg"
