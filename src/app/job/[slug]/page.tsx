@@ -1,7 +1,8 @@
+// src/app/job/[slug]/page.tsx
 import { supabase } from "../../../lib/supabase";
 import { notFound } from "next/navigation";
 import JobDetailClient from "./JobDetailClient";
-import type { Job } from "./JobDetailClient"; // Correct// Import Job default export
+import type { Job } from "./JobDetailClient";
 
 interface JobDetailPageProps {
   params: {
@@ -12,7 +13,6 @@ interface JobDetailPageProps {
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const { slug } = params;
 
-  // Fetch job data server-side
   const { data: jobData, error: jobError } = await supabase
     .from("jobs")
     .select(`
@@ -33,11 +33,14 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     notFound();
   }
 
-  // Fetch similar jobs
   let similarJobs: Job[] = [];
   let companyJobs: Job[] = [];
-  const jobCategories = jobData.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
-  const jobSubcategories = jobData.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
+
+  const jobCategories =
+    jobData.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
+
+  const jobSubcategories =
+    jobData.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
 
   if (jobCategories.length > 0) {
     const { data: similarData } = await supabase
@@ -56,24 +59,26 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     if (similarData) {
       const scoredJobs = similarData.map((job: Job) => {
         let score = 0;
-        const jobCats = job.job_categories?.map((jc: { categories?: { name?: string } }) => jc.categories?.name).filter(Boolean) || [];
-        const jobSubs = job.job_categories?.map((jc: { subcategories?: { name?: string } }) => jc.subcategories?.name).filter(Boolean) || [];
+        const jobCats = job.job_categories?.map((jc: any) => jc.categories?.name).filter(Boolean) || [];
+        const jobSubs = job.job_categories?.map((jc: any) => jc.subcategories?.name).filter(Boolean) || [];
+
         jobSubs.forEach((sub: string | undefined) => {
           if (sub && jobSubcategories.includes(sub)) score += 3;
         });
         jobCats.forEach((cat: string | undefined) => {
           if (cat && jobCategories.includes(cat)) score += 1;
         });
+
         return { ...job, similarityScore: score };
       });
+
       similarJobs = scoredJobs
-        .filter((job: Job & { similarityScore: number }) => job.similarityScore > 0)
+        .filter((job) => job.similarityScore > 0)
         .sort((a, b) => b.similarityScore - a.similarityScore)
         .slice(0, 3);
     }
   }
 
-  // Fetch other jobs from same company
   if (jobData.job_company?.id) {
     const { data: companyData } = await supabase
       .from("jobs")
@@ -84,6 +89,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       .eq("company", jobData.job_company.id)
       .neq("id", jobData.id)
       .limit(3);
+
     if (companyData) {
       companyJobs = companyData as Job[];
     }
