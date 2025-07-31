@@ -3,7 +3,7 @@ import DashboardClient from "./DashboardClient";
 
 export async function generateMetadata() {
   return {
-    title: "Dashboard | Jobler",
+    title: "Dashboard | Job2Door",
     description: "Your personalized job dashboard on Jobler.",
     alternates: {
       canonical: "https://jobler.com/dashboard",
