@@ -16,8 +16,8 @@ const geistSans = Geist({
 // });
 
 export const metadata: Metadata = {
-  title: "Jobler - Job Platform",
-  description: "Find your next opportunity or the perfect candidate",
+  title: "Job2Door - Job Platform",
+  description: "Find your next opportunity and get your Dream job . Job2Door - A Smarter, Simpler, Open Source Job Search Platform",
 };
 
 export default function RootLayout({
