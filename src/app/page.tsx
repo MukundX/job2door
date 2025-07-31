@@ -160,12 +160,7 @@ export default function HomePage() {
 					>
 						Dashboard <span className="ml-2">⚡</span>
 					</a>
-					<!--<a-->
-					<!--	href="/"-->
-					<!--	className="px-6 py-3 rounded-lg bg-[#FACC15] text-black font-semibold shadow hover:bg-yellow-400 transition w-full md:w-auto text-center"-->
-					<!-->-->
-					<!--	Get Started-->
-					<!--</a>-->
+					
 				</div>
 				{/* Search Bar */}
 				<form
@@ -297,7 +292,7 @@ export default function HomePage() {
 					<div className="bg-white border-4 border-black rounded-[2rem] w-56 h-[400px] flex flex-col items-center justify-center overflow-hidden shadow-lg">
 						<img
 							src="https://play-lh.googleusercontent.com/8H4Muv90Apcq2AKMNRda7eTeXyrabaZ5HPEHAz4nyGovxmsllEr1Ly7B1IniIwx5jFA=w5120-h2880-rw"
-							alt=https://placehold.co/375x812?text=job2door-2&font=roboto&size=32"
+							alt="mobile 2"
 							className="w-full h-full object-cover"
 						/>
 					</div>
