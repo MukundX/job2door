@@ -47,10 +47,10 @@ export default function DashboardNavbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <span className="text-white font-bold text-lg">J</span>
+              <span className="text-white font-bold text-lg">J2D</span>
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Jobler
+              Job2Door
             </span>
           </Link>
 
