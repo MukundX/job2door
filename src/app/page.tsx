@@ -285,32 +285,7 @@ export default function HomePage() {
 					</div>
 				</div>
 				{/* Mobile Screens Section */}
-{/* 				<div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-10 w-full">
-					{/* Mobile 1 */}
-{/* 					// <div className="bg-white border-4 border-black rounded-[2rem] w-56 h-[400px] flex flex-col items-center justify-center overflow-hidden shadow-lg">
-					// 	<img */}
-					// 		src="https://placehold.co/375x812?text=job2door-1&font=roboto&size=32"
-					// 		alt="Mobile 1"
-					// 		className="w-full h-full object-cover"
-					// 	/>
-					// </div>
-					// {/* Mobile 2 */}
-					// <div className="bg-white border-4 border-black rounded-[2rem] w-56 h-[400px] flex flex-col items-center justify-center overflow-hidden shadow-lg">
-					// 	<img
-					// 		src="https://play-lh.googleusercontent.com/8H4Muv90Apcq2AKMNRda7eTeXyrabaZ5HPEHAz4nyGovxmsllEr1Ly7B1IniIwx5jFA=w5120-h2880-rw"
-					// 		alt="mobile 2"
-					// 		className="w-full h-full object-cover"
-					// 	/>
-					// </div>
-					// {/* Mobile 3 */}
-					// <div className="bg-white border-4 border-black rounded-[2rem] w-56 h-[400px] flex flex-col items-center justify-center overflow-hidden shadow-lg">
-					// 	<img
-					// 		src="https://placehold.co/375x812?text=job2door-3&font=roboto&size=32"
-					// 		alt="Mobile 3"
-					// 		className="w-full h-full object-cover"
-					// 	/>
-					// </div>
-{/* 				</div>  */}
+				
 				{/* Call to Action Banner */}
 				<div className="w-full bg-black text-white py-8 mt-16 flex flex-col items-center justify-center rounded-xl shadow-lg">
 					<h2 className="text-2xl font-bold mb-2">
