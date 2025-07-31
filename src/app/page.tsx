@@ -299,7 +299,7 @@ export default function HomePage() {
 					{/* Mobile 3 */}
 					<div className="bg-white border-4 border-black rounded-[2rem] w-56 h-[400px] flex flex-col items-center justify-center overflow-hidden shadow-lg">
 						<img
-							src=https://placehold.co/375x812?text=job2door-3&font=roboto&size=32"
+							src="https://placehold.co/375x812?text=job2door-3&font=roboto&size=32"
 							alt="Mobile 3"
 							className="w-full h-full object-cover"
 						/>
